@@ -97,6 +97,12 @@ enum L10n {
         static var moviePickerDescription: String { NSLocalizedString("mode.moviePicker.description", comment: "") }
     }
 
+    enum Onboarding {
+        static var readyTitle: String { NSLocalizedString("onboarding.ready.title", comment: "") }
+        static var readySubtitle: String { NSLocalizedString("onboarding.ready.subtitle", comment: "") }
+        static var readyDetails: String { NSLocalizedString("onboarding.ready.details", comment: "") }
+    }
+
     enum Search {
         static var currentSelection: String { NSLocalizedString("search.currentSelection", comment: "") }
         static var noResults: String { NSLocalizedString("search.noResults", comment: "") }

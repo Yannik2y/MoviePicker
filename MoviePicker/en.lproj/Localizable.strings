@@ -72,6 +72,11 @@
 "common.next" = "Next";
 "common.getStarted" = "Get Started";
 
+/* Onboarding */
+"onboarding.ready.title" = "Ready to Go!";
+"onboarding.ready.subtitle" = "You're all set";
+"onboarding.ready.details" = "Choose your mode from the menu and start picking movies. Have fun!";
+
 /* About */
 "about.title" = "About";
 "about.appName" = "007 Film Picker";

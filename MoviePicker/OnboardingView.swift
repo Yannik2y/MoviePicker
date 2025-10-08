@@ -40,9 +40,9 @@ struct OnboardingView: View {
         OnboardingPage(
             icon: "checkmark.circle.fill",
             iconColor: .green,
-            title: "Ready to Go!",
-            description: "You're all set",
-            details: "Choose your mode from the menu and start picking movies. Have fun!",
+            title: L10n.Onboarding.readyTitle,
+            description: L10n.Onboarding.readySubtitle,
+            details: L10n.Onboarding.readyDetails,
             accentColor: .green
         )
     ]
