@@ -1,0 +1,21 @@
+//
+//  Config.swift.template
+//  MoviePicker
+//
+//  IMPORTANT: This is a template file!
+//  
+//  To set up the app:
+//  1. Copy this file and rename it to "Config.swift" (remove .template)
+//  2. Add your TMDB API key below
+//  3. Never commit Config.swift to Git (it's in .gitignore)
+//
+
+import Foundation
+
+enum Config {
+    /// Your TMDB API Key
+    /// Get it from: https://www.themoviedb.org/settings/api
+    static let tmdbAPIKey = "YOUR_API_KEY_HERE"
+}
+
+

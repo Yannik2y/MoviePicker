@@ -1,0 +1,93 @@
+/* English Localization */
+
+/* Menu */
+"menu.title" = "Select Mode";
+"menu.bondPicker" = "Bond Picker";
+"menu.moviePicker" = "Movie Picker";
+"menu.dadMode" = "Dad Mode";
+"menu.instructions" = "How to Use";
+
+/* Mode Descriptions */
+"mode.bondPicker.description" = "Random selection";
+"mode.moviePicker.description" = "Pick any movie";
+
+/* Button Titles */
+"button.bondPicker" = "Bond Picker";
+"button.moviePicker" = "Movie Picker";
+
+/* Actor Filter */
+"filter.allActors" = "All Actors";
+"filter.label" = "Filter:";
+
+/* Empty States */
+"empty.noMovies" = "No movies available";
+"empty.tryDifferent" = "Try selecting a different actor";
+
+/* Error Messages */
+"error.noMoviesForActor" = "No movies available for the selected actor. Please choose a different filter.";
+"error.unableToSelect" = "Unable to select a movie. Please try again.";
+"error.noMoviesFound" = "No movies found for %@. Please select a different actor.";
+"error.noCustomMovie" = "No custom movie selected. Tap the settings icon to choose one.";
+
+/* Search */
+"search.title" = "Choose Your Movie";
+"search.placeholder" = "Search any movie...";
+"search.currentSelection" = "Current Selection:";
+"search.searching" = "Searching...";
+"search.noResults" = "No movies found";
+"search.tryDifferent" = "Try a different search term";
+"search.searchAny" = "Search for any movie";
+"search.prankHint" = "Your partner will never see it coming! 😏";
+
+/* Instructions */
+"instructions.title" = "How to Use";
+"instructions.bondPicker.title" = "Bond Picker";
+"instructions.bondPicker.subtitle" = "Random James Bond Movie";
+"instructions.bondPicker.step1" = "Select mode from menu";
+"instructions.bondPicker.step2" = "Tap 'Bond Picker' button";
+"instructions.bondPicker.step3" = "Enjoy your random Bond movie! 🎬";
+
+"instructions.moviePicker.title" = "Movie Picker";
+"instructions.moviePicker.subtitle" = "Pick ANY Movie";
+"instructions.moviePicker.step1" = "Select mode from menu";
+"instructions.moviePicker.step2" = "Triple tap the circle in the middle ⚡️";
+"instructions.moviePicker.step3" = "Search sheet opens automatically";
+"instructions.moviePicker.step4" = "Select any movie";
+"instructions.moviePicker.step5" = "Picker always lands on it! 😏";
+
+"instructions.dadMode.title" = "Dad Mode";
+"instructions.dadMode.subtitle" = "Always WM-Halbfinale 2014";
+"instructions.dadMode.step1" = "Select mode from menu";
+"instructions.dadMode.step2" = "Tap 'Bond Picker' button";
+"instructions.dadMode.step3" = "Always lands on WM-Halbfinale 2014 🏆";
+
+/* Accessibility */
+"accessibility.pickerButton.label" = "Select random James Bond movie";
+"accessibility.pickerButton.hint" = "Double tap to randomly select a movie";
+
+/* Common */
+"common.done" = "Done";
+"common.close" = "Close";
+"common.back" = "Back";
+"common.next" = "Next";
+"common.getStarted" = "Get Started";
+
+/* About */
+"about.title" = "About";
+"about.appName" = "007 Film Picker";
+"about.appSubtitle" = "Random James Bond Movie Selector";
+"about.features" = "Features";
+"about.feature.bondPicker" = "Random Bond movie selection";
+"about.feature.customPicker" = "Custom movie picker mode";
+"about.feature.dadMode" = "Dad Mode (WM-Halbfinale 2014)";
+"about.feature.actorFilter" = "Filter by Bond actor";
+"about.feature.languages" = "German & English support";
+"about.dataSources" = "Data Sources";
+"about.movieData" = "Movie Data & Posters";
+"about.tmdb.disclaimer" = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
+"about.tmdb.attribution" = "Movie poster images and data provided by The Movie Database (TMDB).";
+"about.tmdb.visit" = "Visit TMDB";
+"about.legal" = "Legal Notice";
+"about.legal.disclaimer" = "This app is not affiliated with Eon Productions, MGM, or the James Bond franchise. All movie titles and actor names are used for informational purposes only.";
+"about.legal.nonCommercial" = "✅ Non-Commercial Use: This app is for personal use only and does not generate revenue. TMDB API usage is covered under their free developer license.";
+

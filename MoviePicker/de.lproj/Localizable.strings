@@ -1,0 +1,93 @@
+/* German Localization / Deutsche Lokalisierung */
+
+/* Menu */
+"menu.title" = "Modus wählen";
+"menu.bondPicker" = "Bond Picker";
+"menu.moviePicker" = "Film Picker";
+"menu.dadMode" = "Papa Modus";
+"menu.instructions" = "Anleitung";
+
+/* Mode Descriptions */
+"mode.bondPicker.description" = "Zufällige Auswahl";
+"mode.moviePicker.description" = "Beliebigen Film wählen";
+
+/* Button Titles */
+"button.bondPicker" = "Bond Picker";
+"button.moviePicker" = "Film Picker";
+
+/* Actor Filter */
+"filter.allActors" = "Alle Darsteller";
+"filter.label" = "Filter:";
+
+/* Empty States */
+"empty.noMovies" = "Keine Filme verfügbar";
+"empty.tryDifferent" = "Versuche einen anderen Darsteller";
+
+/* Error Messages */
+"error.noMoviesForActor" = "Keine Filme für den gewählten Darsteller verfügbar. Bitte wähle einen anderen Filter.";
+"error.unableToSelect" = "Film konnte nicht ausgewählt werden. Bitte versuche es erneut.";
+"error.noMoviesFound" = "Keine Filme gefunden für %@. Bitte wähle einen anderen Darsteller.";
+"error.noCustomMovie" = "Kein Film ausgewählt. Tippe auf das Einstellungs-Symbol um einen auszuwählen.";
+
+/* Search */
+"search.title" = "Wähle deinen Film";
+"search.placeholder" = "Beliebigen Film suchen...";
+"search.currentSelection" = "Aktuelle Auswahl:";
+"search.searching" = "Suche läuft...";
+"search.noResults" = "Keine Filme gefunden";
+"search.tryDifferent" = "Versuche einen anderen Suchbegriff";
+"search.searchAny" = "Suche nach einem beliebigen Film";
+"search.prankHint" = "Dein Partner wird es nie kommen sehen! 😏";
+
+/* Instructions */
+"instructions.title" = "Anleitung";
+"instructions.bondPicker.title" = "Bond Picker";
+"instructions.bondPicker.subtitle" = "Zufälliger Bond Film";
+"instructions.bondPicker.step1" = "Modus im Menü wählen";
+"instructions.bondPicker.step2" = "'Bond Picker' Button tippen";
+"instructions.bondPicker.step3" = "Zufälliger Bond Film wird gewählt! 🎬";
+
+"instructions.moviePicker.title" = "Film Picker";
+"instructions.moviePicker.subtitle" = "Beliebiger Film";
+"instructions.moviePicker.step1" = "Modus im Menü wählen";
+"instructions.moviePicker.step2" = "Dreimal den Kreis in der Mitte tippen ⚡️";
+"instructions.moviePicker.step3" = "Suchfenster öffnet sich automatisch";
+"instructions.moviePicker.step4" = "Beliebigen Film auswählen";
+"instructions.moviePicker.step5" = "Picker landet immer darauf! 😏";
+
+"instructions.dadMode.title" = "Papa Modus";
+"instructions.dadMode.subtitle" = "Immer WM-Halbfinale 2014";
+"instructions.dadMode.step1" = "Modus im Menü wählen";
+"instructions.dadMode.step2" = "'Bond Picker' Button tippen";
+"instructions.dadMode.step3" = "Landet immer auf WM-Halbfinale 2014 🏆";
+
+/* Accessibility */
+"accessibility.pickerButton.label" = "Zufälligen James Bond Film auswählen";
+"accessibility.pickerButton.hint" = "Doppelt antippen um zufällig einen Film auszuwählen";
+
+/* Common */
+"common.done" = "Fertig";
+"common.close" = "Schließen";
+"common.back" = "Zurück";
+"common.next" = "Weiter";
+"common.getStarted" = "Los geht's";
+
+/* About */
+"about.title" = "Über";
+"about.appName" = "007 Film Picker";
+"about.appSubtitle" = "Zufälliger James Bond Film Auswahl";
+"about.features" = "Funktionen";
+"about.feature.bondPicker" = "Zufällige Bond Film Auswahl";
+"about.feature.customPicker" = "Benutzerdefinierter Film Picker Modus";
+"about.feature.dadMode" = "Papa Modus (WM-Halbfinale 2014)";
+"about.feature.actorFilter" = "Nach Bond-Darsteller filtern";
+"about.feature.languages" = "Deutsch & Englisch Unterstützung";
+"about.dataSources" = "Datenquellen";
+"about.movieData" = "Film Daten & Poster";
+"about.tmdb.disclaimer" = "Dieses Produkt verwendet die TMDB API, ist jedoch nicht von TMDB empfohlen oder zertifiziert.";
+"about.tmdb.attribution" = "Filmposter-Bilder und Daten bereitgestellt von The Movie Database (TMDB).";
+"about.tmdb.visit" = "TMDB besuchen";
+"about.legal" = "Rechtlicher Hinweis";
+"about.legal.disclaimer" = "Diese App ist nicht mit Eon Productions, MGM oder dem James Bond Franchise verbunden. Alle Filmtitel und Darstellernamen werden nur zu Informationszwecken verwendet.";
+"about.legal.nonCommercial" = "✅ Nicht-kommerzielle Nutzung: Diese App ist nur für den persönlichen Gebrauch und generiert keine Einnahmen. Die TMDB API-Nutzung ist durch deren kostenlose Entwickler-Lizenz abgedeckt.";
+

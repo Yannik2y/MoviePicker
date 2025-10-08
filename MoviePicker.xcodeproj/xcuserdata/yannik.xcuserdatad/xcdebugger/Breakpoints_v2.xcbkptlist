@@ -7,49 +7,17 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "0F18C48A-663E-4C25-913F-E536CF4D5731"
+            uuid = "86C572D8-ECF0-4A61-9BDC-78321992B978"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MoviePicker/MoviePickerApp.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "10"
-            endingLineNumber = "10"
+            startingLineNumber = "4"
+            endingLineNumber = "4"
             landmarkName = "unknown"
             landmarkType = "0">
-            <Locations>
-               <Location
-                  uuid = "0F18C48A-663E-4C25-913F-E536CF4D5731 - 27dfe50cde518d0"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MoviePicker.MoviePickerApp.init() -&gt; MoviePicker.MoviePickerApp"
-                  moduleName = "MoviePicker"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yannik/Documents/Privat/Sonstiges/MagicMovie/MoviePicker/MoviePicker/MoviePickerApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "12"
-                  endingLineNumber = "12"
-                  offsetFromSymbolStart = "46">
-               </Location>
-               <Location
-                  uuid = "0F18C48A-663E-4C25-913F-E536CF4D5731 - 1803574fca7ad51c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MoviePicker.MoviePickerApp.init(contentViewVM: @autoclosure () -&gt; MoviePicker.PickerViewModel, dadModeViewVM: @autoclosure () -&gt; MoviePicker.DadModeViewModel) -&gt; MoviePicker.MoviePickerApp"
-                  moduleName = "MoviePicker"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yannik/Documents/Privat/Sonstiges/MagicMovie/MoviePicker/MoviePicker/MoviePickerApp.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "15"
-                  endingLineNumber = "15"
-                  offsetFromSymbolStart = "66">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
