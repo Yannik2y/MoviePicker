@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Privacy Tracking -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	
+	<!-- Tracking Domains (only used when tracking = YES) -->
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	
+	<!-- Collected Data Types (declare in App Store Connect instead) -->
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	
+	<!-- Accessed API Types (Required Reason APIs only) -->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array/>
+</dict>
+</plist>
+
