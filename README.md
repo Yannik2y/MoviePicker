@@ -210,6 +210,12 @@ This app is not affiliated with Eon Productions, MGM, or the James Bond franchis
 
 **Non-Commercial Use:** This app is for personal use only and does not generate revenue. TMDB API usage is covered under their free developer license.
 
+## 🚀 App Store releases (CI)
+
+Builds are archived and uploaded to App Store Connect via GitHub Actions + Fastlane. After you add the App Store Connect API key and TMDB secrets once, run **Actions → Release to App Store** (or push a `v*` tag) to upload and submit for review.
+
+See **[docs/APP_STORE_CI.md](docs/APP_STORE_CI.md)** for the full setup.
+
 ## 📞 Support
 
 For setup help or bug reports, see [CUSTOM_PICKER_SETUP.md](CUSTOM_PICKER_SETUP.md) for detailed instructions.

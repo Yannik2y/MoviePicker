@@ -81,6 +81,14 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+fastlane/README.md
+AuthKey.p8
+**/AuthKey_*.p8
+*.p8
+
+# CI / local archive output
+build/
+vendor/bundle/
 
 # Code Injection
 #
