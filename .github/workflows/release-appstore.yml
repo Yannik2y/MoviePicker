@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       submit_for_review:
-        description: "Submit the uploaded build for App Review"
+        description: "Submit for App Review (uncheck for TestFlight upload only)"
         required: true
         type: boolean
-        default: true
+        default: false
   push:
     tags:
       - "v*"
@@ -27,11 +27,12 @@ jobs:
       APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
       TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-      # Unique build number per workflow run (must increase for each ASC upload)
-      BUILD_NUMBER: ${{ github.run_number }}
+      # Unique build number per workflow run (must increase for each ASC upload).
+      # Offset keeps CI builds above local Xcode uploads (project currently at 3).
+      BUILD_NUMBER: ${{ github.run_number + 2 }}
       FASTLANE_SKIP_UPDATE_CHECK: "1"
       CI: "true"
-      # Tags always submit; workflow_dispatch uses the input toggle
+      # Tags always submit; workflow_dispatch uses the input toggle (default: TestFlight only)
       SUBMIT_FOR_REVIEW: ${{ github.event_name == 'push' && 'true' || inputs.submit_for_review }}
 
     steps:

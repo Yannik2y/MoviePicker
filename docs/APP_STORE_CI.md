@@ -58,8 +58,11 @@ In App Store Connect, accept any pending **Paid Apps** / **Free Apps** agreement
 
 1. Open the repo on GitHub → **Actions** → **Release to App Store**
 2. **Run workflow**
-3. Leave **Submit the uploaded build for App Review** checked to submit, or uncheck to upload only
-4. Watch the macOS job; on success the build appears in App Store Connect (and moves to Waiting for Review if submit was enabled)
+3. **TestFlight only:** leave **Submit for App Review** unchecked (default). The IPA uploads to App Store Connect; after processing, enable it under TestFlight (Internal and/or External).
+4. **App Review:** check **Submit for App Review** when you intend a full store submission
+5. Watch the macOS job; on success the build appears in App Store Connect
+
+CI sets `CURRENT_PROJECT_VERSION` to `github.run_number + 2` so the first release run is build **3** (aligned with the Xcode project).
 
 ### Option B — Git tag
 
