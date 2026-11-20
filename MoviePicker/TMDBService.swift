@@ -60,7 +60,7 @@ class TMDBService: ObservableObject {
     
     /// Search for movies by title
     func searchMovies(query: String) async throws -> [TMDBMovie] {
-        guard !apiKey.isEmpty && apiKey != "YOUR_API_KEY_HERE" else {
+        guard Config.hasValidAPIKey else {
             throw TMDBError.noAPIKey
         }
         
@@ -91,7 +91,7 @@ class TMDBService: ObservableObject {
     
     /// Get movie credits (cast)
     func getMovieCredits(movieId: Int) async throws -> [String] {
-        guard !apiKey.isEmpty && apiKey != "YOUR_API_KEY_HERE" else {
+        guard Config.hasValidAPIKey else {
             throw TMDBError.noAPIKey
         }
         
@@ -147,7 +147,7 @@ enum TMDBError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noAPIKey:
-            return "TMDB API key not configured. Please add your API key to TMDBService.swift"
+            return "TMDB API key not configured. Set TMDB_API_KEY in the Xcode scheme or add Secrets.plist (see Secrets.plist.template)."
         case .invalidURL:
             return "Invalid URL"
         case .invalidResponse:

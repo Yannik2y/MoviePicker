@@ -44,17 +44,13 @@
 		3EC659CB2E944E8400B31EF0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3EC659C52E944E8400B31EF0 /* Localizable.strings */; };
 		3EC659D02E95441A00B31EF0 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659CC2E95441A00B31EF0 /* AboutView.swift */; };
 		3EC659D32E958A5D00B31EF0 /* TMDBPosterImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659D22E958A5D00B31EF0 /* TMDBPosterImage.swift */; };
-		3EC659D72E965BF300B31EF0 /* Config.swift.template in Resources */ = {isa = PBXBuildFile; fileRef = 3EC659D52E965BF300B31EF0 /* Config.swift.template */; };
 		3EC659D82E965BF300B31EF0 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659D42E965BF300B31EF0 /* Config.swift */; };
 		3EC659D92E965BF300B31EF0 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659D62E965BF300B31EF0 /* Logger.swift */; };
-		3EC659DC2E965C9200B31EF0 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3EC659DB2E965C9200B31EF0 /* README.md */; };
-		3EC659DD2E965C9200B31EF0 /* CUSTOM_PICKER_SETUP.md in Resources */ = {isa = PBXBuildFile; fileRef = 3EC659DA2E965C9200B31EF0 /* CUSTOM_PICKER_SETUP.md */; };
 		3EC659E22E96631B00B31EF0 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659E12E96631B00B31EF0 /* OnboardingView.swift */; };
 		3EC659E32E96631B00B31EF0 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659DF2E96631B00B31EF0 /* HistoryView.swift */; };
 		3EC659E42E96631B00B31EF0 /* DeviceHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659DE2E96631B00B31EF0 /* DeviceHelper.swift */; };
 		3EC659E52E96631B00B31EF0 /* MovieHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659E02E96631B00B31EF0 /* MovieHistory.swift */; };
 		3EE719DC2E98FD22009C1CA0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3EE719DB2E98FD22009C1CA0 /* PrivacyInfo.xcprivacy */; };
-		3EE719E02E9AF143009C1CA0 /* PRIVACY.md in Resources */ = {isa = PBXBuildFile; fileRef = 3EE719DF2E9AF142009C1CA0 /* PRIVACY.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -372,11 +368,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E1ACE8029DB6DF2007A6E00 /* Preview Assets.xcassets in Resources */,
-				3EE719E02E9AF143009C1CA0 /* PRIVACY.md in Resources */,
-				3EC659DC2E965C9200B31EF0 /* README.md in Resources */,
-				3EC659DD2E965C9200B31EF0 /* CUSTOM_PICKER_SETUP.md in Resources */,
 				3EE719DC2E98FD22009C1CA0 /* PrivacyInfo.xcprivacy in Resources */,
-				3EC659D72E965BF300B31EF0 /* Config.swift.template in Resources */,
 				3EC659CA2E944E8400B31EF0 /* Localizable.strings in Resources */,
 				3EC659CB2E944E8400B31EF0 /* Localizable.strings in Resources */,
 				3E1ACE7D29DB6DF2007A6E00 /* Assets.xcassets in Resources */,

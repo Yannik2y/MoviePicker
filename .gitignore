@@ -90,8 +90,10 @@ fastlane/test_output
 iOSInjectionProject/
 
 # API Keys and Secrets (IMPORTANT!)
-MoviePicker/Config.swift
-Config.swift
+# Config.swift is a checked-in stub. Put real keys in Secrets.plist (not committed)
+# or set TMDB_API_KEY in the Xcode scheme environment.
+MoviePicker/Secrets.plist
+Secrets.plist
 
 # macOS
 .DS_Store

@@ -126,13 +126,12 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
                 .ignoresSafeArea()
         )
         .onChange(of: viewModel.targetMovie) { oldValue, newTargetMovie in
-            // Only set randomMovie immediately for regular picker mode
-            // In Dad Mode, let the scrolling view handle the target movie
-            if let movie = newTargetMovie, movie.title != MovieConstants.fifaWM2014Title {
-                viewModel.randomMovie = newTargetMovie
+            // Never assign randomMovie from target here — that would reveal Bond/Custom
+            // picks before the scroll decoys run. MovieScrollingView lands on target at the end.
+            // Only start scrolling when a new non-nil target is set (not when clearing).
+            if newTargetMovie != nil {
+                viewModel.triggerScrolling = true
             }
-            // Ensure triggerScrolling is set to true to start animation
-            viewModel.triggerScrolling = true
         }
         .onChange(of: viewModel.selectedActor) { oldValue, newValue in
             viewModel.updateFilteredMovies()

@@ -100,22 +100,12 @@ struct MoviePickerApp: View {
         .onChange(of: isShowingMenu) { oldValue, newValue in
             // Clear all pickers when menu is opened
             if newValue {
-                contentViewVM.randomMovie = nil
-                contentViewVM.triggerScrolling = false
-                dadModeViewVM.randomMovie = nil
-                dadModeViewVM.triggerScrolling = false
-                customPickerVM.randomMovie = nil
-                customPickerVM.triggerScrolling = false
+                resetAllPickerState()
             }
         }
         .onChange(of: currentView) { oldValue, newValue in
             // Clear picker when switching modes
-            contentViewVM.randomMovie = nil
-            contentViewVM.triggerScrolling = false
-            dadModeViewVM.randomMovie = nil
-            dadModeViewVM.triggerScrolling = false
-            customPickerVM.randomMovie = nil
-            customPickerVM.triggerScrolling = false
+            resetAllPickerState()
         }
         .onAppear {
             // Show onboarding on first launch
@@ -125,6 +115,18 @@ struct MoviePickerApp: View {
                 }
             }
         }
+    }
+
+    private func resetAllPickerState() {
+        contentViewVM.targetMovie = nil
+        contentViewVM.randomMovie = nil
+        contentViewVM.triggerScrolling = false
+        dadModeViewVM.targetMovie = nil
+        dadModeViewVM.randomMovie = nil
+        dadModeViewVM.triggerScrolling = false
+        customPickerVM.targetMovie = nil
+        customPickerVM.randomMovie = nil
+        customPickerVM.triggerScrolling = false
     }
 }
 
