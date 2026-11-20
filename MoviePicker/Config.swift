@@ -13,50 +13,57 @@ import Foundation
 
 enum Config {
     private static var didLogConfiguration = false
-    
+
+    /// Split so any bulk replace of the placeholder cannot rewrite validation.
+    private static let unsetAPIKey = "YOUR_API_" + "KEY_HERE"
+
     static var tmdbAPIKey: String {
-        if let env = ProcessInfo.processInfo.environment["TMDB_API_KEY"], !env.isEmpty {
+        if let env = ProcessInfo.processInfo.environment["TMDB_API_KEY"]?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+           !env.isEmpty,
+           env != unsetAPIKey {
             return env
         }
         if let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
            let dict = NSDictionary(contentsOf: url) as? [String: Any],
-           let key = dict["TMDB_API_KEY"] as? String,
-           !key.isEmpty,
-           key != "YOUR_API_KEY_HERE" {
-            return key
+           let key = dict["TMDB_API_KEY"] as? String {
+            let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty, trimmed != unsetAPIKey {
+                return trimmed
+            }
         }
-        return "YOUR_API_KEY_HERE"
+        return unsetAPIKey
     }
 
     static var hasValidAPIKey: Bool {
-        let key = tmdbAPIKey
-        return !key.isEmpty && key != "YOUR_API_KEY_HERE"
+        let key = tmdbAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        return !key.isEmpty && key != unsetAPIKey && key.count >= 16
     }
-    
+
     /// Key source label for diagnostics — never logs the key itself
     static var apiKeySource: String {
-        if let env = ProcessInfo.processInfo.environment["TMDB_API_KEY"], !env.isEmpty {
+        if let env = ProcessInfo.processInfo.environment["TMDB_API_KEY"]?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+           !env.isEmpty,
+           env != unsetAPIKey {
             return "environment"
         }
         if let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
            let dict = NSDictionary(contentsOf: url) as? [String: Any],
-           let key = dict["TMDB_API_KEY"] as? String,
-           !key.isEmpty,
-           key != "YOUR_API_KEY_HERE" {
-            return "Secrets.plist"
+           let key = dict["TMDB_API_KEY"] as? String {
+            let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty, trimmed != unsetAPIKey {
+                return "Secrets.plist"
+            }
         }
-        // Compiled-in non-placeholder (CI injects into the template / Config.swift)
-        if hasValidAPIKey {
-            return "compiled"
-        }
-        return "stub"
+        return hasValidAPIKey ? "compiled" : "stub"
     }
-    
+
     static func logConfigurationOnce() {
         guard !didLogConfiguration else { return }
         didLogConfiguration = true
         AppLogger.info(
-            "TMDB key configured=\(hasValidAPIKey) source=\(apiKeySource)",
+            "TMDB key configured=\(hasValidAPIKey) source=\(apiKeySource) length=\(tmdbAPIKey.count)",
             category: .network
         )
     }

@@ -48,9 +48,11 @@ struct TMDBCast: Codable {
 class TMDBService: ObservableObject {
     static let shared = TMDBService()
     
-    private let apiKey: String
     private let baseURL = "https://api.themoviedb.org/3"
     private let session: URLSession
+    
+    /// Always read live from Config so CI inject / Secrets.plist cannot go stale at init.
+    private var apiKey: String { Config.tmdbAPIKey }
     
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -59,8 +61,7 @@ class TMDBService: ObservableObject {
         Locale.current.language.languageCode?.identifier ?? "en"
     }
     
-    init(apiKey: String = Config.tmdbAPIKey, session: URLSession? = nil) {
-        self.apiKey = apiKey
+    init(session: URLSession? = nil) {
         if let session {
             self.session = session
         } else {
