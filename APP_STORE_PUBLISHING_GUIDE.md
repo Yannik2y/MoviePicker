@@ -1,5 +1,7 @@
 # App Store Publishing Guide for MoviePicker
 
+> **Automated releases:** Prefer GitHub Actions + Fastlane. One-time API key setup and how to trigger uploads/review submission are in **[docs/APP_STORE_CI.md](docs/APP_STORE_CI.md)**. The steps below remain as a manual fallback.
+
 ## Prerequisites ✅
 - [x] Apple Developer Account (you have this)
 - [x] App icons generated (just completed)
