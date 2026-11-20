@@ -11,6 +11,7 @@ import SwiftUI
 struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
     @ObservedObject var viewModel: ViewModel
     @State private var errorDismissTask: DispatchWorkItem?
+    @State private var showMissingKeyHint = false
     var buttonTitle: String = Strings.bondPickerTitle
     
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -44,7 +45,7 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
                             metrics: metrics,
                             reduceMotion: reduceMotion
                         )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     }
                     
                     Spacer(minLength: 8)
@@ -54,6 +55,8 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
                 
                 if let errorMessage = viewModel.errorMessage {
                     errorBanner(errorMessage)
+                } else if showMissingKeyHint {
+                    errorBanner(L10n.Error.missingAPIKey)
                 }
             }
         }
@@ -63,27 +66,42 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
                 .scaledToFill()
                 .ignoresSafeArea()
         )
-        .onChange(of: viewModel.targetMovie) { _, newTargetMovie in
-            if newTargetMovie != nil {
-                viewModel.triggerScrolling = true
-            }
-        }
         .onChange(of: viewModel.selectedActor) { _, _ in
             viewModel.updateFilteredMovies()
+        }
+        .onAppear {
+            Config.logConfigurationOnce()
+            if !Config.hasValidAPIKey {
+                showMissingKeyHint = true
+            }
         }
     }
     
     @ViewBuilder
     private func chrome(metrics: AdaptiveLayoutMetrics) -> some View {
+        let pickAction = {
+            viewModel.selectMovie()
+        }
+        
         if metrics.isRegularWidth {
             HStack(spacing: 24) {
-                PickerButton(action: { viewModel.selectMovie() }, title: buttonTitle, metrics: metrics)
+                PickerButton(
+                    action: pickAction,
+                    title: buttonTitle,
+                    metrics: metrics,
+                    isEnabled: !viewModel.triggerScrolling
+                )
                 ActorPicker(selectedActor: $viewModel.selectedActor, allActors: viewModel.allActors)
             }
             .padding(.horizontal)
         } else {
             VStack(spacing: metrics.chromeSpacing) {
-                PickerButton(action: { viewModel.selectMovie() }, title: buttonTitle, metrics: metrics)
+                PickerButton(
+                    action: pickAction,
+                    title: buttonTitle,
+                    metrics: metrics,
+                    isEnabled: !viewModel.triggerScrolling
+                )
                 ActorPicker(selectedActor: $viewModel.selectedActor, allActors: viewModel.allActors)
             }
         }
@@ -126,6 +144,7 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
                 Button(action: {
                     errorDismissTask?.cancel()
                     viewModel.errorMessage = nil
+                    showMissingKeyHint = false
                 }) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.white.opacity(0.8))
@@ -141,6 +160,7 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
             .onTapGesture {
                 errorDismissTask?.cancel()
                 viewModel.errorMessage = nil
+                showMissingKeyHint = false
             }
         }
         .animation(.easeInOut, value: viewModel.errorMessage)
@@ -148,6 +168,7 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
             errorDismissTask?.cancel()
             let task = DispatchWorkItem {
                 viewModel.errorMessage = nil
+                showMissingKeyHint = false
             }
             errorDismissTask = task
             DispatchQueue.main.asyncAfter(deadline: .now() + AnimationTiming.errorDismissDelay, execute: task)

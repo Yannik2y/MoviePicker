@@ -14,19 +14,19 @@ struct CustomMovieView: View {
     @StateObject private var storage = CustomMovieStorage.shared
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 0) {
             Group {
                 if let posterImage = storage.posterImage {
                     Image(uiImage: posterImage)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: imageHeight)
+                        .aspectRatio(contentMode: .fill)
+                } else if movie.tmdbPosterURL != nil {
+                    TMDBPosterImage(movie: movie, contentMode: .fill)
                 } else {
                     ZStack {
                         Rectangle()
                             .fill(Color.white.opacity(0.12))
-                            .frame(height: imageHeight)
-                        VStack {
+                        VStack(spacing: 8) {
                             Image(systemName: "film.fill")
                                 .font(.largeTitle)
                                 .foregroundColor(.white)
@@ -39,39 +39,33 @@ struct CustomMovieView: View {
                     }
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .frame(maxWidth: .infinity)
+            .frame(height: imageHeight)
+            .clipped()
             
             VStack(spacing: 6) {
                 Text(movie.title)
-                    .font(.title2.bold())
+                    .font(.title3.bold())
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.75)
                 
-                VStack(spacing: 4) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "person.fill")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.8))
-                        Text(movie.actor)
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.9))
-                            .lineLimit(1)
-                    }
-                    
-                    HStack(spacing: 4) {
-                        Image(systemName: "calendar")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.8))
-                        Text(verbatim: String(movie.year))
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
+                HStack(spacing: 10) {
+                    Image(systemName: "person.fill")
+                    Text(movie.actor)
+                        .lineLimit(1)
+                    Image(systemName: "calendar")
+                    Text(verbatim: String(movie.year))
                 }
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.9))
             }
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 72)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
         }
-        .padding()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(movie.title), \(movie.year), \(movie.actor)")
     }

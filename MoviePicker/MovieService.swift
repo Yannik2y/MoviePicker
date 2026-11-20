@@ -19,6 +19,8 @@ protocol MovieCatalogServing: AnyObject {
     func filterMovies(by actor: BondActor) -> [Movie]
     func hasMovies(for actor: String) -> Bool
     func hasMovies(for actor: BondActor) -> Bool
+    func resolvedMovie(matching movie: Movie) -> Movie?
+    func posterURL(for movie: Movie) -> URL?
 }
 
 /// Service responsible for managing movie data and filtering logic
@@ -36,6 +38,7 @@ class MovieService: ObservableObject, MovieCatalogServing {
     init(tmdbService: TMDBService? = nil) {
         // Default args cannot reference @MainActor statics; resolve on the main actor here.
         self.tmdbService = tmdbService ?? .shared
+        Config.logConfigurationOnce()
         moviesWithTMDBPosters = applyCachedPosterURLs(to: Movies)
         Task {
             await initializeTMDBPosters()
@@ -62,6 +65,19 @@ class MovieService: ObservableObject, MovieCatalogServing {
         moviesWithTMDBPosters.first { $0.title == MovieConstants.fifaWM2014Title }
     }
     
+    /// Fresh catalog entry (with TMDB URL) for a movie snapshot
+    func resolvedMovie(matching movie: Movie) -> Movie? {
+        if let match = moviesWithTMDBPosters.first(where: { $0.id == movie.id }) {
+            return match
+        }
+        return moviesWithTMDBPosters.first(where: { $0.title == movie.title && $0.year == movie.year })
+    }
+    
+    func posterURL(for movie: Movie) -> URL? {
+        if let url = movie.tmdbPosterURL { return url }
+        return resolvedMovie(matching: movie)?.tmdbPosterURL
+    }
+    
     /// Initialize TMDB poster URLs with cache + bounded parallelism
     private func initializeTMDBPosters() async {
         guard Config.hasValidAPIKey else {
@@ -73,7 +89,6 @@ class MovieService: ObservableObject, MovieCatalogServing {
         AppLogger.info("Starting TMDB poster initialization for \(Movies.count) movies", category: .network)
         
         var cache = loadPosterCache()
-        var updatedMovies = moviesWithTMDBPosters
         var successCount = 0
         var failureCount = 0
         
@@ -83,11 +98,9 @@ class MovieService: ObservableObject, MovieCatalogServing {
         
         await withTaskGroup(of: (String, URL?).self) { group in
             var iterator = needsFetch.makeIterator()
-            var inFlight = 0
             
             func enqueueNext() {
                 guard let movie = iterator.next() else { return }
-                inFlight += 1
                 group.addTask { [tmdbService] in
                     let url = await tmdbService.getBondMoviePosterURL(title: movie.title)
                     return (movie.cacheKey, url)
@@ -99,7 +112,6 @@ class MovieService: ObservableObject, MovieCatalogServing {
             }
             
             for await (key, url) in group {
-                inFlight -= 1
                 if let url {
                     cache[key] = url.absoluteString
                     successCount += 1
@@ -111,10 +123,14 @@ class MovieService: ObservableObject, MovieCatalogServing {
         }
         
         // Apply cache (including previously stored URLs) to catalog
-        updatedMovies = applyCachedPosterURLs(to: Movies, cache: cache)
-        moviesWithTMDBPosters = updatedMovies
+        moviesWithTMDBPosters = applyCachedPosterURLs(to: Movies, cache: cache)
         savePosterCache(cache)
         isInitializingPosters = false
+        
+        // Warm image cache for visible catalog
+        let urls = moviesWithTMDBPosters.compactMap(\.tmdbPosterURL)
+        PosterImageCache.shared.prefetch(Array(urls.prefix(16)))
+        
         AppLogger.info("TMDB poster initialization complete: \(successCount) new, \(failureCount) failed this run", category: .network)
     }
     
@@ -160,17 +176,4 @@ class MovieService: ObservableObject, MovieCatalogServing {
 
 private extension Movie {
     var cacheKey: String { "\(title)|\(year)" }
-    
-    func withPosterURL(_ url: URL) -> Movie {
-        Movie(
-            id: id,
-            title: title,
-            year: year,
-            actor: actor,
-            genre: genre,
-            imdbRating: imdbRating,
-            poster: poster,
-            tmdbPosterURL: url
-        )
-    }
 }

@@ -26,26 +26,40 @@ struct AdaptiveLayoutMetrics {
         isRegularWidth ? min(size.width, 720) : size.width
     }
     
+    /// Portrait poster card width
     var posterWidth: CGFloat {
         if isRegularWidth {
-            return min(500, contentMaxWidth * 0.7)
+            return min(380, contentMaxWidth * 0.55)
         }
-        return min(Layout.posterFrameWidth, size.width * 0.92)
+        return min(340, size.width * 0.78)
     }
     
+    /// Meta band under the poster image
+    var posterMetaHeight: CGFloat {
+        isCompactHeight ? 72 : 92
+    }
+    
+    /// Ideal 2:3 poster image height from width
+    private var idealPosterImageHeight: CGFloat {
+        posterWidth * 1.5
+    }
+    
+    /// Total card height (image + meta), clamped for short screens
     var posterHeight: CGFloat {
-        let maxH = isCompactHeight ? size.height * 0.42 : size.height * 0.45
-        let ideal = posterWidth * (isRegularWidth ? 0.88 : 0.88)
-        return min(ideal, maxH, isRegularWidth ? 440 : Layout.posterFrameHeight)
+        let ideal = idealPosterImageHeight + posterMetaHeight
+        let maxH = isCompactHeight ? size.height * 0.55 : size.height * 0.62
+        return min(ideal, maxH)
     }
     
+    /// Image area height after clamping total card height
     var posterImageHeight: CGFloat {
-        min(Layout.posterImageHeight * (isRegularWidth ? 1.15 : 1.0), posterHeight * 0.55)
+        max(96, posterHeight - posterMetaHeight)
     }
     
+    /// Clearance under the floating menu button
     var pickerTopPadding: CGFloat {
-        if isCompactHeight { return 24 }
-        return isRegularWidth ? 48 : 56
+        if isCompactHeight { return 28 }
+        return isRegularWidth ? 72 : 100
     }
     
     var chromeSpacing: CGFloat {

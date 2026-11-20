@@ -11,6 +11,7 @@ struct PickerButton: View {
     let action: () -> Void
     var title: String = Strings.bondPickerTitle
     var metrics: AdaptiveLayoutMetrics? = nil
+    var isEnabled: Bool = true
     @State private var isPressed = false
     
     var body: some View {
@@ -34,12 +35,15 @@ struct PickerButton: View {
                     .stroke(Color.white.opacity(0.5), lineWidth: 2)
             )
         }
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1.0 : 0.55)
         .scaleEffect(isPressed ? 0.95 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         .hoverEffect(.highlight)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
+                    guard isEnabled else { return }
                     if !isPressed { isPressed = true }
                 }
                 .onEnded { _ in

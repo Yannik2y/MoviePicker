@@ -16,6 +16,7 @@ protocol MoviePickerViewModelProtocol: ObservableObject {
     var triggerScrolling: Bool { get set }
     var filteredMovies: [Movie] { get set }
     var errorMessage: String? { get set }
+    var isPreparingPosters: Bool { get }
     var allMovies: [Movie] { get }
     var allActors: [String] { get }
     

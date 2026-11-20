@@ -56,6 +56,19 @@ struct Movie: Identifiable, Hashable, Equatable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+    
+    func withPosterURL(_ url: URL?) -> Movie {
+        Movie(
+            id: id,
+            title: title,
+            year: year,
+            actor: actor,
+            genre: genre,
+            imdbRating: imdbRating,
+            poster: poster,
+            tmdbPosterURL: url
+        )
+    }
 }
 
 // Constants for special movies

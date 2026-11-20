@@ -15,6 +15,8 @@
 import Foundation
 
 enum Config {
+    private static var didLogConfiguration = false
+
     /// Your TMDB API Key
     /// Get it from: https://www.themoviedb.org/settings/api
     static var tmdbAPIKey: String { "YOUR_API_KEY_HERE" }
@@ -23,5 +25,19 @@ enum Config {
     static var hasValidAPIKey: Bool {
         let key = tmdbAPIKey
         return !key.isEmpty && key != "YOUR_API_KEY_HERE"
+    }
+
+    /// Key source label for diagnostics — never logs the key itself
+    static var apiKeySource: String {
+        hasValidAPIKey ? "compiled" : "stub"
+    }
+
+    static func logConfigurationOnce() {
+        guard !didLogConfiguration else { return }
+        didLogConfiguration = true
+        AppLogger.info(
+            "TMDB key configured=\(hasValidAPIKey) source=\(apiKeySource)",
+            category: .network
+        )
     }
 }

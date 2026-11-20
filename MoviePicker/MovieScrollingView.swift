@@ -18,27 +18,19 @@ struct MovieScrollingView: View {
     @State private var animationTask: Task<Void, Never>?
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(AppColors.posterBackground)
-                .frame(width: metrics.posterWidth, height: metrics.posterHeight)
-                .cornerRadius(Layout.posterCornerRadius)
-            
+        Group {
             if let movie = randomMovie {
-                Group {
-                    if movie.genre == "Custom" {
-                        CustomMovieView(movie: movie, imageHeight: metrics.posterImageHeight)
-                    } else {
-                        MovieView(movie: movie, imageHeight: metrics.posterImageHeight)
-                    }
-                }
-                .transition(.scale(scale: 0.8).combined(with: .opacity))
-                .animation(
-                    reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.4, dampingFraction: 0.75),
-                    value: movie.id
-                )
+                movieCard(for: movie)
+                    .transition(.scale(scale: 0.92).combined(with: .opacity))
+                    .animation(
+                        reduceMotion ? .easeInOut(duration: 0.15) : .spring(response: 0.4, dampingFraction: 0.75),
+                        value: movie.id
+                    )
+            } else {
+                idlePrompt
             }
         }
+        .frame(width: metrics.posterWidth, height: metrics.posterHeight)
         .onChange(of: triggerScrolling) { _, newValue in
             if newValue {
                 startScrollingAnimation()
@@ -48,6 +40,36 @@ struct MovieScrollingView: View {
             animationTask?.cancel()
             animationTask = nil
         }
+    }
+    
+    @ViewBuilder
+    private func movieCard(for movie: Movie) -> some View {
+        Group {
+            if movie.genre == "Custom" {
+                CustomMovieView(movie: movie, imageHeight: metrics.posterImageHeight)
+            } else {
+                MovieView(movie: movie, imageHeight: metrics.posterImageHeight)
+            }
+        }
+        .frame(width: metrics.posterWidth, height: metrics.posterHeight)
+        .background(AppColors.posterBackground)
+        .clipShape(RoundedRectangle(cornerRadius: Layout.posterCornerRadius, style: .continuous))
+    }
+    
+    private var idlePrompt: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "film.stack")
+                .font(.system(size: 40, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+            Text(L10n.Empty.tapToPick)
+                .font(.headline)
+                .foregroundColor(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.posterBackground.opacity(0.55))
+        .clipShape(RoundedRectangle(cornerRadius: Layout.posterCornerRadius, style: .continuous))
     }
     
     private func startScrollingAnimation() {
@@ -64,17 +86,26 @@ struct MovieScrollingView: View {
         
         AppLogger.debug("Starting scrolling animation with \(steps) frames", category: .ui)
         
+        // Prefetch poster images for scroll candidates + target
+        let prefetchURLs = movies.compactMap { $0.tmdbPosterURL ?? MovieService.shared.posterURL(for: $0) }
+        PosterImageCache.shared.prefetch(Array(prefetchURLs.prefix(12)))
+        if let target = targetMovie,
+           let url = target.tmdbPosterURL ?? MovieService.shared.posterURL(for: target) {
+            PosterImageCache.shared.prefetch([url])
+        }
+        
         animationTask = Task { @MainActor in
             var queue = (0..<steps).compactMap { _ in movies.randomElement() }
             
-            if randomMovie == nil, let first = queue.first {
-                randomMovie = first
+            // Seed immediately so we never show an empty glass box mid-pick
+            if let first = queue.first {
+                randomMovie = resolved(first)
                 queue.removeFirst()
             }
             
             while !queue.isEmpty {
                 if Task.isCancelled { return }
-                let next = queue.removeFirst()
+                let next = resolved(queue.removeFirst())
                 HapticManager.shared.lightImpact()
                 withAnimation {
                     randomMovie = next
@@ -85,7 +116,9 @@ struct MovieScrollingView: View {
             if Task.isCancelled { return }
             
             if let target = targetMovie {
-                let finalMovie = movies.first { $0.id == target.id || $0.title == target.title } ?? target
+                let finalMovie = resolved(
+                    movies.first { $0.id == target.id || $0.title == target.title } ?? target
+                )
                 AppLogger.info("Animation complete - landing on: '\(finalMovie.title)'", category: .ui)
                 HapticManager.shared.success()
                 HapticManager.shared.heavyImpact()
@@ -98,5 +131,9 @@ struct MovieScrollingView: View {
             
             triggerScrolling = false
         }
+    }
+    
+    private func resolved(_ movie: Movie) -> Movie {
+        MovieService.shared.resolvedMovie(matching: movie) ?? movie
     }
 }

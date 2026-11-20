@@ -23,12 +23,14 @@
 /* Empty States */
 "empty.noMovies" = "Keine Filme verfügbar";
 "empty.tryDifferent" = "Versuche einen anderen Darsteller";
+"empty.tapToPick" = "Tippe auf den Picker-Button, um einen Film zu enthüllen";
 
 /* Error Messages */
 "error.noMoviesForActor" = "Keine Filme für den gewählten Darsteller verfügbar. Bitte wähle einen anderen Filter.";
 "error.unableToSelect" = "Film konnte nicht ausgewählt werden. Bitte versuche es erneut.";
 "error.noMoviesFound" = "Keine Filme gefunden für %@. Bitte wähle einen anderen Darsteller.";
 "error.noCustomMovie" = "Kein Film ausgewählt. Tippe auf das Einstellungs-Symbol um einen auszuwählen.";
+"error.missingAPIKey" = "Filmposter brauchen einen TMDB API-Key. Mit CI-Config-Inject neu bauen oder Secrets.plist hinzufügen.";
 
 /* Search */
 "search.title" = "Wähle deinen Film";

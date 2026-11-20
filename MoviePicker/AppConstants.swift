@@ -15,11 +15,11 @@ enum Layout {
     static let menuButtonTopSpacing: CGFloat = 20
     static let menuOffsetHidden: CGFloat = -300
     
-    static let posterFrameWidth: CGFloat = 375
-    static let posterFrameHeight: CGFloat = 330
-    static let posterImageHeight: CGFloat = 200
-    static let posterCornerRadius: CGFloat = 10
-    static let posterVerticalOffset: CGFloat = -5
+    static let posterFrameWidth: CGFloat = 340
+    static let posterFrameHeight: CGFloat = 520
+    static let posterImageHeight: CGFloat = 420
+    static let posterCornerRadius: CGFloat = 16
+    static let posterVerticalOffset: CGFloat = 0
     
     static let buttonCornerRadius: CGFloat = 40
     static let buttonBorderWidth: CGFloat = 5

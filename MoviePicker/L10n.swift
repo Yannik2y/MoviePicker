@@ -47,6 +47,7 @@ enum L10n {
     enum Empty {
         static var noMovies: String { NSLocalizedString("empty.noMovies", comment: "") }
         static var tryDifferent: String { NSLocalizedString("empty.tryDifferent", comment: "") }
+        static var tapToPick: String { NSLocalizedString("empty.tapToPick", comment: "") }
     }
 
     enum Error {
@@ -56,6 +57,7 @@ enum L10n {
             String(format: NSLocalizedString("error.noMoviesFound", comment: ""), value)
         }
         static var unableToSelect: String { NSLocalizedString("error.unableToSelect", comment: "") }
+        static var missingAPIKey: String { NSLocalizedString("error.missingAPIKey", comment: "") }
     }
 
     enum Filter {
