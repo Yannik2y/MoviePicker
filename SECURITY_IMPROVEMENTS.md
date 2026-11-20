@@ -1,138 +1,26 @@
-# 🔒 Security Improvements Applied - Priority 1
+# Security Improvements — API Key Handling
 
 ## Summary
-API key has been moved from hardcoded values to a secure configuration file that is excluded from Git.
+The TMDB API key is no longer hardcoded in source. Clean clones build with a stub; real keys stay out of git.
 
-## Changes Made
+## Current setup
 
-### 1. ✅ Created `.gitignore`
-**File:** `.gitignore`
+1. **`MoviePicker/Config.swift`** (committed stub) resolves the key from:
+   - Xcode scheme environment variable `TMDB_API_KEY`, or
+   - Optional `Secrets.plist` in the app bundle (gitignored)
+2. **`Secrets.plist.template`** — copy to `Secrets.plist`, add your key, add the plist to the Xcode target if you use this path. Never commit `Secrets.plist`.
+3. **`.gitignore`** excludes `Secrets.plist`.
 
-Added comprehensive gitignore rules including:
-- Xcode user data
-- Build artifacts
-- **API Keys and Secrets** (Config.swift)
-- macOS system files
+## If a key was ever committed
 
-### 2. ✅ Created Configuration Template
-**File:** `MoviePicker/Config.swift.template`
+1. **Rotate/revoke** that key in the [TMDB API settings](https://www.themoviedb.org/settings/api).
+2. Confirm `git log -p -S 'api_key'` / secret scanning no longer finds a live key in docs or Swift sources.
+3. If the repo was public with a leaked key, scrub history (`git filter-repo`) after rotation.
 
-This is a template file that developers can copy to create their own `Config.swift`:
-```swift
-enum Config {
-    static let tmdbAPIKey = "YOUR_API_KEY_HERE"
-}
-```
+## Recommendations for production
 
-### 3. ✅ Created Active Configuration File
-**File:** `MoviePicker/Config.swift` (excluded from Git)
+1. Environment / CI injection of secrets
+2. Server-side proxy so the key never ships in the binary
+3. Avoid pasting real keys into markdown “before/after” examples
 
-Contains your actual API key. This file:
-- ✅ Is excluded from Git via `.gitignore`
-- ✅ Will NOT be committed to version control
-- ✅ Keeps your API key secure
-
-### 4. ✅ Updated TMDBService
-**File:** `MoviePicker/TMDBService.swift`
-
-**Before:**
-```swift
-private let apiKey = "415a3bce324ed3183f4d842bc1f9e8ed" // EXPOSED!
-```
-
-**After:**
-```swift
-// API key is now stored in Config.swift (excluded from Git)
-// See Config.swift.template for setup instructions
-private let apiKey = Config.tmdbAPIKey
-```
-
-### 5. ✅ Updated Setup Documentation
-**File:** `CUSTOM_PICKER_SETUP.md`
-
-Updated instructions to reference the new secure configuration method.
-
-### 6. ✅ Created README
-**File:** `README.md`
-
-Comprehensive documentation including:
-- Setup instructions
-- Security notes
-- Architecture overview
-- Usage guide
-
-## 🔐 Security Benefits
-
-| Before | After |
-|--------|-------|
-| ❌ API key hardcoded in source | ✅ API key in config file |
-| ❌ API key committed to Git | ✅ Config file excluded from Git |
-| ❌ Public in repository | ✅ Private and secure |
-| ❌ Hard to change | ✅ Easy to manage |
-
-## ⚠️ IMPORTANT: Next Steps
-
-### If you plan to commit to Git:
-
-1. **Verify .gitignore is working:**
-   ```bash
-   git status
-   # Config.swift should NOT appear in the list
-   ```
-
-2. **Check what's being tracked:**
-   ```bash
-   git ls-files | grep Config
-   # Should only show: Config.swift.template
-   ```
-
-3. **If Config.swift was previously committed:**
-   ```bash
-   # Remove from Git history (WARNING: rewrites history)
-   git rm --cached MoviePicker/Config.swift
-   git commit -m "Remove Config.swift from tracking"
-   
-   # Or use git-filter-repo for complete removal
-   # https://github.com/newren/git-filter-repo
-   ```
-
-### For New Developers
-
-When someone clones your repo, they should:
-1. Copy `Config.swift.template` to `Config.swift`
-2. Add their own TMDB API key
-3. Build the project
-
-The setup is now documented in `README.md`.
-
-## 📋 Verification Checklist
-
-- [x] `.gitignore` created with Config.swift entry
-- [x] `Config.swift.template` created for reference
-- [x] `Config.swift` created with your API key
-- [x] `TMDBService.swift` updated to use Config
-- [x] Documentation updated
-- [x] No linter errors
-- [ ] Project builds successfully (verify in Xcode)
-- [ ] Git doesn't track Config.swift (verify with `git status`)
-
-## 🎯 Result
-
-Your API key is now:
-- ✅ Secure and not committed to Git
-- ✅ Easy for developers to configure
-- ✅ Following iOS best practices
-- ✅ Properly documented
-
-## Additional Recommendations
-
-For even better security in production apps, consider:
-
-1. **Environment Variables** - Use Xcode schemes with environment variables
-2. **Secrets Manager** - AWS Secrets Manager, Azure Key Vault, etc.
-3. **Build-time Injection** - Inject keys during CI/CD
-4. **Server-side Proxy** - API calls through your own server
-
-For this personal project, the current solution is excellent and follows industry standards! 🎉
-
-
+For this personal project, stub Config + local Secrets/env is sufficient when keys are rotated and never committed.

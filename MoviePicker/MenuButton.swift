@@ -26,6 +26,8 @@ struct MenuButton: View {
                         .foregroundColor(.white)
                 }
             }
+            .accessibilityLabel(L10n.Menu.title)
+            .hoverEffect(.highlight)
             .padding()
 
             Spacer()

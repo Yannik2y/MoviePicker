@@ -159,7 +159,7 @@ struct MenuView: View {
                         .font(.title3)
                         .foregroundColor(.cyan)
                         .frame(width: 30)
-                    Text("History & Favorites")
+                    Text(L10n.Menu.history)
                         .font(.body)
                         .foregroundColor(.white)
                     Spacer()
@@ -182,7 +182,7 @@ struct MenuView: View {
                         .font(.title3)
                         .foregroundColor(.cyan)
                         .frame(width: 30)
-                    Text("About")
+                    Text(L10n.About.title)
                         .font(.body)
                         .foregroundColor(.white)
                     Spacer()
@@ -198,25 +198,18 @@ struct MenuView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            AppColors.menuBackground
-                .overlay(
-                    // Blur effect for more modern look
-                    Color.black.opacity(0.3)
-                )
-        )
-        .edgesIgnoringSafeArea(.all)
-        .transition(.move(edge: .top).combined(with: .opacity))
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isShowingMenu)
-        .offset(y: isShowingMenu ? 0 : Layout.menuOffsetHidden)
+        .background(AppColors.menuBackground.opacity(0.95))
         .sheet(isPresented: $showingInstructions) {
             InstructionsView()
+                .presentationDetents([.large])
         }
         .sheet(isPresented: $showingHistory) {
             HistoryView()
+                .presentationDetents([.large])
         }
         .sheet(isPresented: $showingAbout) {
             AboutView()
+                .presentationDetents([.medium, .large])
         }
     }
 }

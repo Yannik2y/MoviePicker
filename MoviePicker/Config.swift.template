@@ -2,15 +2,14 @@
 //  Config.swift.template
 //  MoviePicker
 //
-//  IMPORTANT: This is a template file!
+//  Local development:
+//  - Config.swift is a checked-in stub (safe placeholder). Prefer scheme env
+//    TMDB_API_KEY or gitignored Secrets.plist (see Secrets.plist.template).
+//  - Do not commit a real API key in Config.swift.
 //
-//  Local setup:
-//  1. Copy this file to "Config.swift" (remove .template)
-//  2. Add your TMDB API key below
-//  3. Never commit Config.swift to Git (it's in .gitignore)
-//
-//  CI: GitHub Actions copies this template and injects TMDB_API_KEY
-//  from repository secrets before archiving (see docs/APP_STORE_CI.md).
+//  CI: GitHub Actions copies this template over Config.swift and injects
+//  TMDB_API_KEY from repository secrets before archiving (see docs/APP_STORE_CI.md).
+//  The placeholder YOUR_API_KEY_HERE must remain so sed injection works.
 //
 
 import Foundation
@@ -18,7 +17,11 @@ import Foundation
 enum Config {
     /// Your TMDB API Key
     /// Get it from: https://www.themoviedb.org/settings/api
-    static let tmdbAPIKey = "YOUR_API_KEY_HERE"
+    static var tmdbAPIKey: String { "YOUR_API_KEY_HERE" }
+
+    /// True when a non-placeholder key is present (required by TMDBService / MovieService).
+    static var hasValidAPIKey: Bool {
+        let key = tmdbAPIKey
+        return !key.isEmpty && key != "YOUR_API_KEY_HERE"
+    }
 }
-
-

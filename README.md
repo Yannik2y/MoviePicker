@@ -2,9 +2,9 @@
 
 A SwiftUI iOS app for randomly selecting James Bond movies with three unique modes, including a clever "prank" feature!
 
-![iOS](https://img.shields.io/badge/iOS-15.0+-blue.svg)
+![iOS](https://img.shields.io/badge/iOS%20%2F%20iPadOS-17.0+-blue.svg)
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
-![SwiftUI](https://img.shields.io/badge/SwiftUI-3.0-green.svg)
+![SwiftUI](https://img.shields.io/badge/SwiftUI-5-green.svg)
 
 ## 🎯 Features
 
@@ -35,9 +35,9 @@ A SwiftUI iOS app for randomly selecting James Bond movies with three unique mod
 ## 🚀 Setup
 
 ### Prerequisites
-- Xcode 14.0+
-- iOS 15.0+
-- TMDB API Key (free)
+- Xcode 15.0+
+- iOS / iPadOS 17.0+
+- TMDB API Key (free) for search and remote posters
 
 ### Installation
 
@@ -54,18 +54,11 @@ A SwiftUI iOS app for randomly selecting James Bond movies with three unique mod
    - Request an API key (Developer)
    - Copy your API Key (v3 auth)
 
-3. **Configure API Key**
-   ```bash
-   # Copy the template
-   cp MoviePicker/Config.swift.template MoviePicker/Config.swift
-   ```
-   
-   Open `MoviePicker/Config.swift` and replace `YOUR_API_KEY_HERE` with your actual API key:
-   ```swift
-   enum Config {
-       static let tmdbAPIKey = "your_actual_api_key_here"
-   }
-   ```
+3. **Configure API Key** (pick one; never commit a real key)
+   - **Scheme env:** Edit Scheme → Run → Arguments → Environment Variables → `TMDB_API_KEY` = your key
+   - **Secrets.plist:** `cp MoviePicker/Secrets.plist.template MoviePicker/Secrets.plist`, put your key in the plist, add `Secrets.plist` to the MoviePicker target in Xcode (file is gitignored)
+
+   The project builds without a key; TMDB search/posters show a clear error until configured.
 
 4. **Open in Xcode**
    ```bash
@@ -73,16 +66,12 @@ A SwiftUI iOS app for randomly selecting James Bond movies with three unique mod
    ```
 
 5. **Build and Run**
-   - Select your target device/simulator
+   - Select iPhone or iPad simulator/device
    - Press `Cmd + R`
 
 ## 🔒 Security Note
 
-**Important:** The `Config.swift` file is excluded from Git for security reasons. Never commit your API keys to version control!
-
-The `.gitignore` file automatically excludes:
-- `MoviePicker/Config.swift`
-- All user data (`xcuserdata/`)
+`Config.swift` is a **checked-in stub**. Real keys belong in the scheme environment or gitignored `Secrets.plist` — never in markdown or committed Swift.
 
 ## 🏗️ Architecture
 

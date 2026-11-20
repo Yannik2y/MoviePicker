@@ -17,114 +17,160 @@ struct MoviePickerApp: View {
     @State private var showingOnboarding = false
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     var body: some View {
-        ZStack {
-            switch currentView {
-            case .contentView:
-                ContentView(viewModel: contentViewVM)
-            case .dadModeView:
-                DadModeView(viewModel: dadModeViewVM)
-            case .customPickerView:
-                CustomPickerView(viewModel: customPickerVM)
-            }
+        GeometryReader { geo in
+            let metrics = AdaptiveLayoutMetrics(
+                horizontalSizeClass: horizontalSizeClass,
+                verticalSizeClass: verticalSizeClass,
+                size: geo.size
+            )
             
-            // Menu button overlay - ensure it's on top
-            VStack {
-                HStack {
-                    MenuButton(action: { isShowingMenu.toggle() }, isDadMode: currentView == .dadModeView)
-                    Spacer()
+            ZStack {
+                switch currentView {
+                case .contentView:
+                    ContentView(viewModel: contentViewVM)
+                case .dadModeView:
+                    DadModeView(viewModel: dadModeViewVM)
+                case .customPickerView:
+                    CustomPickerView(viewModel: customPickerVM)
                 }
-                Spacer()
-            }
-            .padding(.top, Layout.menuButtonTopSpacing)
-            .zIndex(10) // Ensure menu button is above everything
-            .allowsHitTesting(true) // Explicitly allow touch interaction
-
-            if isShowingMenu {
-                MenuView(isShowingMenu: $isShowingMenu, currentView: $currentView)
-                    .zIndex(20) // Ensure menu is above everything
-            }
-            
-            // Triple-tap detector for Custom Picker - adaptive for iPad
-            if currentView == .customPickerView {
+                
+                // Menu button
                 VStack {
-                    Spacer()
-                        .frame(height: DeviceHelper.isiPad ? 300 : 200) // More space on iPad
-                    
                     HStack {
-                        Spacer()
-                        ZStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.05))
-                                .frame(width: DeviceHelper.isiPad ? 150 : 100, height: DeviceHelper.isiPad ? 150 : 100)
-                            Circle()
-                                .stroke(Color.white.opacity(0.2), lineWidth: DeviceHelper.isiPad ? 2 : 1)
-                                .frame(width: DeviceHelper.isiPad ? 150 : 100, height: DeviceHelper.isiPad ? 150 : 100)
-                        }
-                        .onTapGesture(count: 3) {
-                            customPickerVM.showingSettings = true
-                            HapticManager.shared.success()
-                        }
+                        MenuButton(action: { isShowingMenu.toggle() }, isDadMode: currentView == .dadModeView)
+                            .hoverEffect(.highlight)
                         Spacer()
                     }
-                    
                     Spacer()
                 }
-                .zIndex(10000) // Highest possible
+                .padding(.top, 8)
+                .zIndex(10)
+                
+                if isShowingMenu {
+                    menuOverlay(metrics: metrics)
+                        .zIndex(20)
+                }
+                
+                if currentView == .customPickerView {
+                    secretHitTarget(metrics: metrics, in: geo.size)
+                        .zIndex(15)
+                }
+                
+                tmdbAttribution
             }
         }
         .sheet(isPresented: $showingOnboarding) {
             OnboardingView(isPresented: $showingOnboarding)
+                .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.large])
         }
-        .overlay(
-            // TMDB Attribution (required by TMDB terms)
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text("Powered by")
-                            .font(.caption2)
-                            .foregroundColor(.white.opacity(0.5))
-                        Image("tmdb_logo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 12)
-                    }
-                    .padding(.trailing, 8)
-                    .padding(.bottom, 8)
-                }
-            }
-        )
-        .onChange(of: isShowingMenu) { oldValue, newValue in
-            // Clear all pickers when menu is opened
-            if newValue {
-                contentViewVM.randomMovie = nil
-                contentViewVM.triggerScrolling = false
-                dadModeViewVM.randomMovie = nil
-                dadModeViewVM.triggerScrolling = false
-                customPickerVM.randomMovie = nil
-                customPickerVM.triggerScrolling = false
-            }
+        .onChange(of: isShowingMenu) { _, newValue in
+            if newValue { resetAllPickerState() }
         }
-        .onChange(of: currentView) { oldValue, newValue in
-            // Clear picker when switching modes
-            contentViewVM.randomMovie = nil
-            contentViewVM.triggerScrolling = false
-            dadModeViewVM.randomMovie = nil
-            dadModeViewVM.triggerScrolling = false
-            customPickerVM.randomMovie = nil
-            customPickerVM.triggerScrolling = false
+        .onChange(of: currentView) { _, _ in
+            resetAllPickerState()
         }
         .onAppear {
-            // Show onboarding on first launch
             if !hasCompletedOnboarding {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     showingOnboarding = true
                 }
             }
+            // UITesting launch argument
+            if ProcessInfo.processInfo.arguments.contains("-UITesting") {
+                hasCompletedOnboarding = true
+                showingOnboarding = false
+            }
+            if ProcessInfo.processInfo.arguments.contains("-SkipOnboarding") {
+                hasCompletedOnboarding = true
+            }
         }
+    }
+    
+    @ViewBuilder
+    private func menuOverlay(metrics: AdaptiveLayoutMetrics) -> some View {
+        ZStack(alignment: .leading) {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+                .onTapGesture { isShowingMenu = false }
+            
+            if metrics.isRegularWidth {
+                MenuView(isShowingMenu: $isShowingMenu, currentView: $currentView)
+                    .frame(width: metrics.menuPanelWidth)
+                    .frame(maxHeight: .infinity)
+                    .background(AppColors.menuBackground)
+                    .transition(.move(edge: .leading))
+            } else {
+                MenuView(isShowingMenu: $isShowingMenu, currentView: $currentView)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .background(AppColors.menuBackground)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isShowingMenu)
+    }
+    
+    private func secretHitTarget(metrics: AdaptiveLayoutMetrics, in size: CGSize) -> some View {
+        let hit = metrics.secretHitSize
+        return VStack {
+            Spacer()
+                .frame(height: size.height * 0.42)
+            HStack {
+                Spacer()
+                Circle()
+                    .fill(Color.white.opacity(0.04))
+                    .frame(width: hit, height: hit)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    )
+                    .contentShape(Circle())
+                    .onTapGesture(count: 3) {
+                        customPickerVM.showingSettings = true
+                        HapticManager.shared.success()
+                    }
+                    .accessibilityHidden(true)
+                Spacer()
+            }
+            Spacer()
+        }
+        .allowsHitTesting(true)
+    }
+    
+    private var tmdbAttribution: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Powered by")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.5))
+                    Image("tmdb_logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 12)
+                }
+                .padding(.trailing, 8)
+                .padding(.bottom, 8)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private func resetAllPickerState() {
+        contentViewVM.targetMovie = nil
+        contentViewVM.randomMovie = nil
+        contentViewVM.triggerScrolling = false
+        dadModeViewVM.targetMovie = nil
+        dadModeViewVM.randomMovie = nil
+        dadModeViewVM.triggerScrolling = false
+        customPickerVM.targetMovie = nil
+        customPickerVM.randomMovie = nil
+        customPickerVM.triggerScrolling = false
     }
 }
 

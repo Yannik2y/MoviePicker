@@ -89,7 +89,34 @@ enum L10n {
         static var dadMode: String { NSLocalizedString("menu.dadMode", comment: "") }
         static var instructions: String { NSLocalizedString("menu.instructions", comment: "") }
         static var moviePicker: String { NSLocalizedString("menu.moviePicker", comment: "") }
+        static var history: String { NSLocalizedString("menu.history", comment: "") }
         static var title: String { NSLocalizedString("menu.title", comment: "") }
+    }
+
+    enum History {
+        static var title: String { NSLocalizedString("history.title", comment: "") }
+        static var tabHistory: String { NSLocalizedString("history.tab.history", comment: "") }
+        static var tabFavorites: String { NSLocalizedString("history.tab.favorites", comment: "") }
+        static var tabStats: String { NSLocalizedString("history.tab.stats", comment: "") }
+        static var clear: String { NSLocalizedString("history.clear", comment: "") }
+        static var clearNonFavorites: String { NSLocalizedString("history.clearNonFavorites", comment: "") }
+        static var clearConfirmTitle: String { NSLocalizedString("history.clearConfirmTitle", comment: "") }
+        static var clearConfirmAll: String { NSLocalizedString("history.clearConfirmAll", comment: "") }
+        static var clearConfirmFavorites: String { NSLocalizedString("history.clearConfirmFavorites", comment: "") }
+        static var cancel: String { NSLocalizedString("history.cancel", comment: "") }
+        static var clearAction: String { NSLocalizedString("history.clearAction", comment: "") }
+        static var emptyTitle: String { NSLocalizedString("history.emptyTitle", comment: "") }
+        static var emptyFavoritesTitle: String { NSLocalizedString("history.emptyFavoritesTitle", comment: "") }
+        static var emptySubtitle: String { NSLocalizedString("history.emptySubtitle", comment: "") }
+        static var emptyFavoritesSubtitle: String { NSLocalizedString("history.emptyFavoritesSubtitle", comment: "") }
+        static var statsTitle: String { NSLocalizedString("history.statsTitle", comment: "") }
+        static var statsTotal: String { NSLocalizedString("history.stats.total", comment: "") }
+        static var statsFavorites: String { NSLocalizedString("history.stats.favorites", comment: "") }
+        static var statsMostActor: String { NSLocalizedString("history.stats.mostActor", comment: "") }
+        static var statsFavoriteMode: String { NSLocalizedString("history.stats.favoriteMode", comment: "") }
+        static func share(title: String, year: String, actor: String, mode: String) -> String {
+            String(format: NSLocalizedString("history.share", comment: ""), title, year, actor, mode)
+        }
     }
 
     enum Mode {

@@ -8,71 +8,20 @@
 import Foundation
 import SwiftUI
 
-/// Dad Mode ViewModel: A humorous feature that appears to randomly select
-/// but always "magically" picks the 2014 World Cup Semifinal
+/// Dad Mode: always picks the 2014 World Cup Semifinal
 @MainActor
-final class DadModeViewModel: ObservableObject {
-    @Published var selectedActor: String = ""
-    @Published var targetMovie: Movie? = nil
-    @Published var randomMovie: Movie? = nil
-    @Published var triggerScrolling: Bool = false
-    @Published var filteredMovies: [Movie] = []
-    @Published var errorMessage: String? = nil
-    
-    @ObservedObject private var movieService = MovieService.shared
-    
-    // Only include actual James Bond movies for filtering
-    var allMovies: [Movie] {
-        movieService.bondMovies
-    }
-    
-    var allActors: [String] {
-        movieService.allActorsWithFilter
-    }
-    
-    var wm2014Movie: Movie {
+final class DadModeViewModel: BasePickerViewModel {
+    var wm2014Movie: Movie? {
         movieService.fifaMovie
     }
     
-    init() {
-        // Use localized "All Actors" string
-        self.selectedActor = L10n.Filter.allActors
-        self.updateFilteredMovies()
-    }
-    
-    func selectMovie() {
-        // Clear any previous errors
-        errorMessage = nil
-        
-        // Haptic feedback for button press
-        HapticManager.shared.mediumImpact()
-        
-        // Prevent multiple rapid selections
-        guard !triggerScrolling else { return }
-        
-        // Reset any previous state
-        targetMovie = nil
-        randomMovie = nil
-        
-        // Always target WM-Halbfinale 2014 in Dad Mode
-        targetMovie = wm2014Movie
-        triggerScrolling = true
-        
-        // Note: Dad Mode doesn't track to history (only Bond Picker does)
-    }
-
-    func updateFilteredMovies() {
-        // Haptic feedback for filter change
-        HapticManager.shared.selectionChanged()
-        
-        filteredMovies = movieService.filterMovies(by: selectedActor)
-        
-        if filteredMovies.isEmpty {
-            errorMessage = Strings.ErrorMessages.noMoviesFound(for: selectedActor)
-            HapticManager.shared.warning()
-        } else {
-            errorMessage = nil
+    override func chooseTargetMovie() -> Movie? {
+        guard let movie = wm2014Movie else {
+            errorMessage = Strings.ErrorMessages.unableToSelect
+            HapticManager.shared.error()
+            return nil
         }
+        MovieHistory.shared.addToHistory(movie: movie, mode: .dadMode)
+        return movie
     }
 }
-
