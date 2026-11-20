@@ -51,6 +51,8 @@ struct ActorPicker: View {
             }
         }
         .padding()
-        .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(L10n.Filter.label) \(selectedActor)")
+        .hoverEffect(.highlight)
     }
 }

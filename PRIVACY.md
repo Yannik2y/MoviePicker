@@ -29,7 +29,7 @@ Die App nutzt die TMDB API (The Movie Database) nur für:
 **Nein.** Diese App führt kein Tracking durch und verwendet keine Analytics-Tools.
 
 ### Kontakt
-Bei Fragen zum Datenschutz: [GitHub Issues](https://github.com/PeterPaul/MoviePicker/issues)
+Bei Fragen zum Datenschutz: [GitHub Issues](https://github.com/Yannik2y/MoviePicker/issues)
 
 ### Änderungen
 Diese Datenschutzerklärung kann bei Bedarf aktualisiert werden.

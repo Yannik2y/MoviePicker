@@ -6,6 +6,7 @@
 "menu.moviePicker" = "Movie Picker";
 "menu.dadMode" = "Dad Mode";
 "menu.instructions" = "How to Use";
+"menu.history" = "History & Favorites";
 
 /* Mode Descriptions */
 "mode.bondPicker.description" = "Random selection";
@@ -95,4 +96,27 @@
 "about.legal" = "Legal Notice";
 "about.legal.disclaimer" = "This app is not affiliated with Eon Productions, MGM, or the James Bond franchise. All movie titles and actor names are used for informational purposes only.";
 "about.legal.nonCommercial" = "✅ Non-Commercial Use: This app is for personal use only and does not generate revenue. TMDB API usage is covered under their free developer license.";
+
+/* History */
+"history.title" = "History & Favorites";
+"history.tab.history" = "History";
+"history.tab.favorites" = "Favorites";
+"history.tab.stats" = "Stats";
+"history.clear" = "Clear History";
+"history.clearNonFavorites" = "Clear Non-Favorites";
+"history.clearConfirmTitle" = "Clear History?";
+"history.clearConfirmAll" = "This will permanently delete all history entries.";
+"history.clearConfirmFavorites" = "This will permanently delete all favorite entries.";
+"history.cancel" = "Cancel";
+"history.clearAction" = "Clear";
+"history.emptyTitle" = "No History";
+"history.emptyFavoritesTitle" = "No Favorites";
+"history.emptySubtitle" = "Your movie selections will appear here";
+"history.emptyFavoritesSubtitle" = "Movies you favorite will appear here";
+"history.statsTitle" = "Your Stats";
+"history.stats.total" = "Total Selections";
+"history.stats.favorites" = "Favorites";
+"history.stats.mostActor" = "Most Selected Actor";
+"history.stats.favoriteMode" = "Favorite Mode";
+"history.share" = "I picked '%@' (%@) starring %@ using %@!";
 

@@ -7,55 +7,62 @@
 
 import SwiftUI
 
-/// Simple AsyncImage wrapper for TMDB posters
-/// Uses iOS built-in caching - no custom cache needed
+/// AsyncImage wrapper for TMDB posters with branded local fallback
 struct TMDBPosterImage: View {
     let movie: Movie
     
     var body: some View {
         Group {
             if let posterURL = movie.tmdbPosterURL {
-                // Use AsyncImage directly - it has built-in caching
                 AsyncImage(url: posterURL) { phase in
                     switch phase {
                     case .empty:
-                        // Loading state
-                        ZStack {
-                            Rectangle()
-                                .fill(Color.white.opacity(0.1))
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        }
+                        placeholder(showProgress: true)
                     case .success(let image):
-                        // Image loaded successfully
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                     case .failure:
-                        // Failed to load
-                        ZStack {
-                            Rectangle()
-                                .fill(Color.white.opacity(0.1))
-                            VStack(spacing: 8) {
-                                Image(systemName: "photo")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.white.opacity(0.5))
-                                Text(movie.title)
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal)
-                            }
-                        }
+                        localOrBrandedFallback
                     @unknown default:
                         EmptyView()
                     }
                 }
             } else {
-                // No TMDB poster URL - try local poster (e.g., WM-Halbfinale 2014)
-                Image(movie.poster)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                localOrBrandedFallback
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var localOrBrandedFallback: some View {
+        if UIImage(named: movie.poster) != nil {
+            Image(movie.poster)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+        } else {
+            placeholder(showProgress: false)
+        }
+    }
+    
+    private func placeholder(showProgress: Bool) -> some View {
+        ZStack {
+            Rectangle()
+                .fill(Color.white.opacity(0.1))
+            if showProgress {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "film")
+                        .font(.system(size: 40))
+                        .foregroundColor(.white.opacity(0.5))
+                    Text(movie.title)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
             }
         }
     }

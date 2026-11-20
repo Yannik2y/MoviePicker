@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 
 /// View for searching and selecting custom movies from TMDB
-/// Styled to match the app's Bond-themed dark aesthetic
 struct MovieSearchView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var tmdbService = TMDBService.shared
@@ -18,18 +17,15 @@ struct MovieSearchView: View {
     @State private var searchText = ""
     @State private var searchResults: [TMDBMovie] = []
     @State private var isSearching = false
-    @State private var selectedMovie: TMDBMovie?
+    @FocusState private var isSearchFocused: Bool
     
-    // Callback to clear picker when movie is selected
     var clearPickerCallback: (() -> Void)?
     
     var body: some View {
         ZStack {
-            // Dark background matching app theme
             Color.black.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header with close button
                 HStack {
                     Text(L10n.Search.title)
                         .font(.title2)
@@ -44,19 +40,21 @@ struct MovieSearchView: View {
                             .font(.title2)
                             .foregroundColor(.white.opacity(0.7))
                     }
+                    .accessibilityLabel(L10n.Common.close)
                 }
                 .padding()
                 .padding(.top, 10)
                 
-                // Search Bar
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.white.opacity(0.6))
                     TextField(L10n.Search.placeholder, text: $searchText)
                         .textFieldStyle(PlainTextFieldStyle())
                         .foregroundColor(.white)
-                        .autocapitalization(.none)
+                        .textInputAutocapitalization(.never)
                         .tint(.cyan)
+                        .focused($isSearchFocused)
+                        .accessibilityLabel(L10n.Search.placeholder)
                     
                     if !searchText.isEmpty {
                         Button(action: {
@@ -66,6 +64,7 @@ struct MovieSearchView: View {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundColor(.white.opacity(0.6))
                         }
+                        .accessibilityLabel(L10n.Common.close)
                     }
                 }
                 .padding()
@@ -74,7 +73,15 @@ struct MovieSearchView: View {
                 .padding(.horizontal)
                 .padding(.bottom)
                 
-                // Current Selection
+                if let error = tmdbService.errorMessage {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundColor(.red.opacity(0.9))
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
                 if let currentMovie = storage.selectedMovie {
                     VStack(spacing: 8) {
                         HStack {
@@ -125,7 +132,6 @@ struct MovieSearchView: View {
                 Divider()
                     .background(Color.white.opacity(0.2))
                 
-                // Results or Empty State
                 if isSearching {
                     VStack {
                         Spacer()
@@ -168,7 +174,6 @@ struct MovieSearchView: View {
                     }
                     .padding()
                 } else {
-                    // Search Results
                     ScrollView {
                         LazyVStack(spacing: 12) {
                             ForEach(searchResults) { movie in
@@ -181,30 +186,43 @@ struct MovieSearchView: View {
                     }
                 }
             }
+            .frame(maxWidth: 720)
+            .frame(maxWidth: .infinity)
         }
-        .onChange(of: searchText) { oldValue, newValue in
-            Task {
-                await performSearch()
+        .task(id: searchText) {
+            await performSearch()
+        }
+        .onAppear {
+            isSearchFocused = true
+            if !Config.hasValidAPIKey {
+                tmdbService.errorMessage = TMDBError.noAPIKey.localizedDescription
             }
         }
     }
     
     private func performSearch() async {
-        guard !searchText.isEmpty else {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
             searchResults = []
+            isSearching = false
             return
         }
         
         isSearching = true
-        AppLogger.debug("Searching for: '\(searchText)'", category: .network)
+        tmdbService.errorMessage = nil
+        AppLogger.debug("Searching for: '\(query)'", category: .network)
         
         do {
-            try await Task.sleep(nanoseconds: 500_000_000) // Debounce
-            let results = try await tmdbService.searchMovies(query: searchText)
+            try await Task.sleep(nanoseconds: 500_000_000)
+            try Task.checkCancellation()
+            let results = try await tmdbService.searchMovies(query: query)
+            try Task.checkCancellation()
             searchResults = results
-            AppLogger.info("Search completed: \(results.count) results for '\(searchText)'", category: .network)
+            AppLogger.info("Search completed: \(results.count) results for '\(query)'", category: .network)
+        } catch is CancellationError {
+            // Newer keystroke superseded this search
         } catch {
-            AppLogger.error("Search failed for '\(searchText)'", error: error, category: .network)
+            AppLogger.error("Search failed for '\(query)'", error: error, category: .network)
             tmdbService.errorMessage = error.localizedDescription
         }
         
@@ -217,72 +235,59 @@ struct MovieSearchView: View {
         
         Task {
             do {
-                // Get cast information
-                AppLogger.debug("Fetching cast for movie ID: \(movie.id)", category: .network)
                 let cast = try await tmdbService.getMovieCredits(movieId: movie.id)
                 
-                // Download poster if available
                 var posterData: Data?
                 if let posterURL = movie.posterURL {
-                    AppLogger.debug("Downloading poster from: \(posterURL.absoluteString)", category: .network)
                     posterData = try? await URLSession.shared.data(from: posterURL).0
-                    if posterData != nil {
-                        AppLogger.info("Poster downloaded successfully", category: .network)
-                    } else {
-                        AppLogger.warning("Failed to download poster data", category: .network)
-                    }
                 }
                 
-                // Save the selection and clear the picker display
                 storage.saveMovie(movie, cast: cast, posterData: posterData)
-                AppLogger.info("Movie selection saved: '\(movie.title)'", category: .storage)
-                
-                // Clear the picker display via callback
                 clearPickerCallback?()
-                
                 HapticManager.shared.success()
                 
-                // Dismiss after short delay
                 try await Task.sleep(nanoseconds: 500_000_000)
                 dismiss()
-                
             } catch {
                 AppLogger.error("Failed to select movie '\(movie.title)'", error: error, category: .network)
+                tmdbService.errorMessage = error.localizedDescription
                 HapticManager.shared.error()
             }
         }
     }
 }
 
-/// Individual search result row - styled to match app theme
 struct MovieSearchResultRow: View {
     let movie: TMDBMovie
     let action: () -> Void
     
-    @State private var posterImage: UIImage?
-    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                // Poster
                 Group {
-                    if let image = posterImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white.opacity(0.1))
-                            .overlay(
+                    if let posterURL = movie.posterURL {
+                        AsyncImage(url: posterURL) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .empty:
+                                ProgressView()
+                            default:
                                 Image(systemName: "film.fill")
                                     .foregroundColor(.white.opacity(0.3))
-                            )
+                            }
+                        }
+                    } else {
+                        Image(systemName: "film.fill")
+                            .foregroundColor(.white.opacity(0.3))
                     }
                 }
                 .frame(width: 60, height: 90)
+                .background(Color.white.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 
-                // Info
                 VStack(alignment: .leading, spacing: 4) {
                     Text(movie.title)
                         .font(.headline)
@@ -312,24 +317,6 @@ struct MovieSearchResultRow: View {
             .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
-        .task {
-            await loadPoster()
-        }
-    }
-    
-    private func loadPoster() async {
-        guard let posterURL = movie.posterURL else { return }
-        
-        do {
-            let (data, _) = try await URLSession.shared.data(from: posterURL)
-            if let image = UIImage(data: data) {
-                posterImage = image
-            } else {
-                AppLogger.warning("Failed to create image from poster data for '\(movie.title)'", category: .network)
-            }
-        } catch {
-            AppLogger.error("Failed to load poster for '\(movie.title)'", error: error, category: .network)
-        }
+        .accessibilityLabel("\(movie.title), \(movie.year > 0 ? String(movie.year) : "")")
     }
 }
-

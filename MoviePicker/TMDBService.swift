@@ -48,15 +48,29 @@ struct TMDBCast: Codable {
 class TMDBService: ObservableObject {
     static let shared = TMDBService()
     
-    // API key is now stored in Config.swift (excluded from Git)
-    // See Config.swift.template for setup instructions
-    private let apiKey = Config.tmdbAPIKey
+    private let apiKey: String
     private let baseURL = "https://api.themoviedb.org/3"
+    private let session: URLSession
     
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    private init() {}
+    private var preferredLanguage: String {
+        Locale.current.language.languageCode?.identifier ?? "en"
+    }
+    
+    init(apiKey: String = Config.tmdbAPIKey, session: URLSession? = nil) {
+        self.apiKey = apiKey
+        if let session {
+            self.session = session
+        } else {
+            let config = URLSessionConfiguration.default
+            config.timeoutIntervalForRequest = 15
+            config.timeoutIntervalForResource = 30
+            config.waitsForConnectivity = true
+            self.session = URLSession(configuration: config)
+        }
+    }
     
     /// Search for movies by title
     func searchMovies(query: String) async throws -> [TMDBMovie] {
@@ -69,21 +83,15 @@ class TMDBService: ObservableObject {
         }
         
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        let urlString = "\(baseURL)/search/movie?api_key=\(apiKey)&query=\(encodedQuery)&language=en-US"
+        let language = preferredLanguage
+        let urlString = "\(baseURL)/search/movie?api_key=\(apiKey)&query=\(encodedQuery)&language=\(language)-US"
         
         guard let url = URL(string: urlString) else {
             throw TMDBError.invalidURL
         }
         
-        let (data, response) = try await URLSession.shared.data(from: url)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw TMDBError.invalidResponse
-        }
-        
-        guard httpResponse.statusCode == 200 else {
-            throw TMDBError.httpError(httpResponse.statusCode)
-        }
+        let (data, response) = try await session.data(from: url)
+        try validate(response: response)
         
         let searchResponse = try JSONDecoder().decode(TMDBSearchResponse.self, from: data)
         return searchResponse.results
@@ -101,12 +109,8 @@ class TMDBService: ObservableObject {
             throw TMDBError.invalidURL
         }
         
-        let (data, response) = try await URLSession.shared.data(from: url)
-        
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw TMDBError.invalidResponse
-        }
+        let (data, response) = try await session.data(from: url)
+        try validate(response: response)
         
         let credits = try JSONDecoder().decode(TMDBCredits.self, from: data)
         return credits.cast.prefix(3).map { $0.name }
@@ -115,10 +119,7 @@ class TMDBService: ObservableObject {
     /// Get poster URL for a Bond movie by title
     func getBondMoviePosterURL(title: String) async -> URL? {
         do {
-            // Search for the movie
             let movies = try await searchMovies(query: title)
-            
-            // Find the best match (exact title match preferred)
             let exactMatch = movies.first { $0.title.lowercased() == title.lowercased() }
             let bestMatch = exactMatch ?? movies.first
             
@@ -134,6 +135,22 @@ class TMDBService: ObservableObject {
             return nil
         }
     }
+    
+    private func validate(response: URLResponse) throws {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw TMDBError.invalidResponse
+        }
+        switch httpResponse.statusCode {
+        case 200:
+            return
+        case 401:
+            throw TMDBError.httpError(401)
+        case 429:
+            throw TMDBError.rateLimited
+        default:
+            throw TMDBError.httpError(httpResponse.statusCode)
+        }
+    }
 }
 
 /// TMDB API Errors
@@ -142,6 +159,7 @@ enum TMDBError: LocalizedError {
     case invalidURL
     case invalidResponse
     case httpError(Int)
+    case rateLimited
     case decodingError
     
     var errorDescription: String? {
@@ -154,9 +172,10 @@ enum TMDBError: LocalizedError {
             return "Invalid response from server"
         case .httpError(let code):
             return "HTTP Error: \(code)"
+        case .rateLimited:
+            return "TMDB rate limit exceeded. Please try again shortly."
         case .decodingError:
             return "Failed to decode response"
         }
     }
 }
-

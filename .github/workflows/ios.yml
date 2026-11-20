@@ -1,0 +1,23 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main, cursor/**]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+      - name: Build
+        run: |
+          xcodebuild \
+            -scheme MoviePicker \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
