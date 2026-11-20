@@ -27,9 +27,6 @@ jobs:
       APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
       TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-      # Unique build number per workflow run (must increase for each ASC upload).
-      # Offset keeps CI builds above local Xcode uploads (project currently at 3).
-      BUILD_NUMBER: ${{ github.run_number + 2 }}
       FASTLANE_SKIP_UPDATE_CHECK: "1"
       CI: "true"
       # Tags always submit; workflow_dispatch uses the input toggle (default: TestFlight only)
@@ -38,6 +35,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set build number
+        run: |
+          # GitHub Actions expressions cannot do arithmetic; offset in shell.
+          # Keeps CI builds above local Xcode uploads (project currently at 3).
+          echo "BUILD_NUMBER=$(( ${{ github.run_number }} + 2 ))" >> "$GITHUB_ENV"
+          echo "Using BUILD_NUMBER=$(( ${{ github.run_number }} + 2 ))"
 
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1

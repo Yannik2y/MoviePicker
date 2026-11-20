@@ -62,7 +62,7 @@ In App Store Connect, accept any pending **Paid Apps** / **Free Apps** agreement
 4. **App Review:** check **Submit for App Review** when you intend a full store submission
 5. Watch the macOS job; on success the build appears in App Store Connect
 
-CI sets `CURRENT_PROJECT_VERSION` to `github.run_number + 2` so the first release run is build **3** (aligned with the Xcode project).
+CI sets `CURRENT_PROJECT_VERSION` from `BUILD_NUMBER` (`github.run_number` plus 2, computed in a shell step) so the first release run is build **3** (aligned with the Xcode project).
 
 ### Option B — Git tag
 
