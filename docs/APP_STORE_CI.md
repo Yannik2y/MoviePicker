@@ -108,6 +108,7 @@ bundle exec fastlane release
 | “Build already exists” | Wait for a new workflow run (higher `run_number`) or bump `BUILD_NUMBER` |
 | “version number has been previously used” / closed train / not higher than approved | Bump `MARKETING_VERSION` in Xcode above the last approved version (e.g. `1.2` → `1.3`) |
 | `ITMS-90725` / SDK too old (requires iOS 27 SDK) | Ensure the release workflow uses `runs-on: xcode-27` + Xcode `27.2` (or newer) |
+| Banner “Filmposter brauchen einen TMDB API-Key” / no Bond posters | Confirm `TMDB_API_KEY` repo secret is set, then re-run Release. CI must inject `__TMDB_API_KEY__` only (not rewrite `hasValidAPIKey`) |
 | Submit fails on incomplete metadata | Finish listing/age rating/export compliance in ASC; CI does not rewrite metadata |
 | Review rejection | Fix in ASC or the app, then re-run the workflow |
 

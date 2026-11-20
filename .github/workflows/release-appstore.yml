@@ -66,15 +66,45 @@ jobs:
             echo "::error::TMDB_API_KEY secret is not set"
             exit 1
           fi
-          cp MoviePicker/Config.swift.template MoviePicker/Config.swift
-          # Replace placeholder; delimiter unlikely to appear in API keys
-          sed -i.bak "s|YOUR_API_KEY_HERE|${TMDB_API_KEY}|g" MoviePicker/Config.swift
-          rm -f MoviePicker/Config.swift.bak
-          if grep -q "YOUR_API_KEY_HERE" MoviePicker/Config.swift; then
-            echo "::error::Failed to inject TMDB API key into Config.swift"
+          KEY_LEN=${#TMDB_API_KEY}
+          if [ "$KEY_LEN" -lt 16 ]; then
+            echo "::error::TMDB_API_KEY secret looks too short (len=$KEY_LEN)"
             exit 1
           fi
-          echo "Config.swift generated for CI build"
+          cp MoviePicker/Config.swift.template MoviePicker/Config.swift
+          # Precise replace of the inject token only (never touch hasValidAPIKey sentinel).
+          # Old sed of YOUR_API_KEY_HERE also rewrote `key != "YOUR_API_KEY_HERE"`,
+          # making hasValidAPIKey always false after a "successful" inject.
+          python3 - <<'PY'
+          import os, pathlib, re
+          path = pathlib.Path("MoviePicker/Config.swift")
+          text = path.read_text()
+          key = os.environ["TMDB_API_KEY"].strip()
+          if "__TMDB_API_KEY__" not in text:
+              raise SystemExit("inject token __TMDB_API_KEY__ missing from Config.swift")
+          # Escape for Swift string literal
+          escaped = (
+              key.replace("\\", "\\\\")
+                 .replace("\"", "\\\"")
+                 .replace("\n", "\\n")
+                 .replace("\r", "")
+          )
+          new_text, n = re.subn(
+              r'__TMDB_API_KEY__',
+              escaped,
+              text,
+              count=0,
+          )
+          if n < 1:
+              raise SystemExit("failed to replace __TMDB_API_KEY__")
+          if "__TMDB_API_KEY__" in new_text:
+              raise SystemExit("inject token still present after replace")
+          # Ensure validation sentinel was not rewritten into the real key
+          if f'key != "{escaped}"' in new_text or f'!= "{escaped}"' in new_text:
+              raise SystemExit("refusing to ship Config where hasValidAPIKey compares against the real key")
+          path.write_text(new_text)
+          print(f"Config.swift generated for CI build (replaced {n} token(s), key_len={len(key)})")
+          PY
 
       - name: Verify App Store Connect secrets
         run: |

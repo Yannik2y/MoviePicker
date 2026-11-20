@@ -9,7 +9,8 @@
 //
 //  CI: GitHub Actions copies this template over Config.swift and injects
 //  TMDB_API_KEY from repository secrets before archiving (see docs/APP_STORE_CI.md).
-//  The placeholder YOUR_API_KEY_HERE must remain so sed injection works.
+//  Only the __TMDB_API_KEY__ token is replaced — never a shared placeholder that
+//  also appears in hasValidAPIKey (that bug made every CI build report "no key").
 //
 
 import Foundation
@@ -17,14 +18,20 @@ import Foundation
 enum Config {
     private static var didLogConfiguration = false
 
+    /// Split so CI search/replace cannot rewrite the validation sentinel.
+    private static let unsetAPIKey = "YOUR_API_" + "KEY_HERE"
+
     /// Your TMDB API Key
     /// Get it from: https://www.themoviedb.org/settings/api
-    static var tmdbAPIKey: String { "YOUR_API_KEY_HERE" }
+    static var tmdbAPIKey: String { "__TMDB_API_KEY__" }
 
     /// True when a non-placeholder key is present (required by TMDBService / MovieService).
     static var hasValidAPIKey: Bool {
-        let key = tmdbAPIKey
-        return !key.isEmpty && key != "YOUR_API_KEY_HERE"
+        let key = tmdbAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        return !key.isEmpty
+            && key != unsetAPIKey
+            && key != "__TMDB_API_KEY__"
+            && key.count >= 16
     }
 
     /// Key source label for diagnostics — never logs the key itself
@@ -36,7 +43,7 @@ enum Config {
         guard !didLogConfiguration else { return }
         didLogConfiguration = true
         AppLogger.info(
-            "TMDB key configured=\(hasValidAPIKey) source=\(apiKeySource)",
+            "TMDB key configured=\(hasValidAPIKey) source=\(apiKeySource) length=\(tmdbAPIKey.count)",
             category: .network
         )
     }
