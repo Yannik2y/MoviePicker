@@ -62,7 +62,7 @@ In App Store Connect, accept any pending **Paid Apps** / **Free Apps** agreement
 4. **App Review:** check **Submit for App Review** when you intend a full store submission (requires a fresh unused `MARKETING_VERSION` on App Store Connect)
 5. Watch the macOS job; on success the build appears in App Store Connect
 
-CI sets `CURRENT_PROJECT_VERSION` from `BUILD_NUMBER` (`github.run_number` plus 2, computed in a shell step) so the first release run is build **3** (aligned with the Xcode project).
+CI sets `CURRENT_PROJECT_VERSION` from `BUILD_NUMBER` (`github.run_number` plus 2, computed in a shell step). Marketing version is set in the Xcode project (`MARKETING_VERSION`).
 
 ### Option B — Git tag
 
@@ -75,9 +75,11 @@ Tag pushes matching `v*` always run the release lane with **submit for review en
 
 ## Build numbers
 
-CI sets `CURRENT_PROJECT_VERSION` from `github.run_number` so each workflow run gets a unique, increasing build. Marketing version (`MARKETING_VERSION` / `1.2`) stays whatever is in the Xcode project unless you bump it in a commit.
+CI sets `CURRENT_PROJECT_VERSION` from `github.run_number` so each workflow run gets a unique, increasing build. Marketing version (`MARKETING_VERSION` / `1.3`) stays whatever is in the Xcode project unless you bump it in a commit.
 
-**TestFlight-only** runs use Fastlane `upload_to_testflight` (no App Store version create). **Submit for Review** uses `upload_to_app_store`, which requires a marketing version that has not already been used on App Store Connect.
+Release jobs run on **`macos-26`** with **Xcode 26.6** (iOS 26 SDK). App Store Connect rejects binaries built with older SDKs.
+
+**TestFlight-only** runs use Fastlane `upload_to_testflight`. **Submit for Review** uses `upload_to_app_store`, which requires a marketing version higher than any previously approved/closed train on App Store Connect.
 
 ## Local Fastlane (macOS only)
 
@@ -104,7 +106,8 @@ bundle exec fastlane release
 | Missing secret errors | Add all four secrets listed above |
 | Code signing / provisioning failures | Ensure the API key is App Manager+, team `7PAQG44S9V` owns the App ID, and Automatic signing is enabled in the project |
 | “Build already exists” | Wait for a new workflow run (higher `run_number`) or bump `BUILD_NUMBER` |
-| “version number has been previously used” / `versionString` | Bump `MARKETING_VERSION` in Xcode (e.g. `1.1` → `1.2`) before **Submit for Review**. TestFlight-only uploads do not create App Store versions |
+| “version number has been previously used” / closed train / not higher than approved | Bump `MARKETING_VERSION` in Xcode above the last approved version (e.g. `1.2` → `1.3`) |
+| SDK / Xcode too old (requires iOS 26 SDK) | Ensure the release workflow uses `macos-26` + Xcode `26.6` (or newer) |
 | Submit fails on incomplete metadata | Finish listing/age rating/export compliance in ASC; CI does not rewrite metadata |
 | Review rejection | Fix in ASC or the app, then re-run the workflow |
 

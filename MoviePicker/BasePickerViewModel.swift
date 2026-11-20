@@ -26,8 +26,9 @@ class BasePickerViewModel: ObservableObject {
         movieService.allActorsWithFilter
     }
     
-    init(movieService: MovieCatalogServing = MovieService.shared) {
-        self.movieService = movieService
+    init(movieService: MovieCatalogServing? = nil) {
+        // Default args cannot reference @MainActor statics; resolve on the main actor here.
+        self.movieService = movieService ?? MovieService.shared
         self.selectedActor = L10n.Filter.allActors
         self.updateFilteredMovies()
     }

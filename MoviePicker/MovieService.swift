@@ -33,8 +33,9 @@ class MovieService: ObservableObject, MovieCatalogServing {
     private let tmdbService: TMDBService
     private let maxConcurrentPosterFetches = 5
     
-    init(tmdbService: TMDBService = .shared) {
-        self.tmdbService = tmdbService
+    init(tmdbService: TMDBService? = nil) {
+        // Default args cannot reference @MainActor statics; resolve on the main actor here.
+        self.tmdbService = tmdbService ?? .shared
         moviesWithTMDBPosters = applyCachedPosterURLs(to: Movies)
         Task {
             await initializeTMDBPosters()

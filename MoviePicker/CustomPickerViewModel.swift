@@ -20,10 +20,11 @@ final class CustomPickerViewModel: BasePickerViewModel {
     }
     
     init(
-        movieService: MovieCatalogServing = MovieService.shared,
-        storage: CustomMovieStorage = .shared
+        movieService: MovieCatalogServing? = nil,
+        storage: CustomMovieStorage? = nil
     ) {
-        self.storage = storage
+        // Default args cannot reference @MainActor statics; resolve on the main actor here.
+        self.storage = storage ?? .shared
         super.init(movieService: movieService)
     }
     
