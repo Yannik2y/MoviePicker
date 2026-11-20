@@ -76,7 +76,11 @@ class BasePickerViewModel: ObservableObject {
         return nil
     }
     
-    func updateFilteredMovies(haptic: Bool = true) {
+    func updateFilteredMovies() {
+        updateFilteredMovies(haptic: true)
+    }
+    
+    func updateFilteredMovies(haptic: Bool) {
         if haptic {
             HapticManager.shared.selectionChanged()
         }
