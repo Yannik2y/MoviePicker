@@ -19,8 +19,8 @@ concurrency:
 jobs:
   release:
     name: Archive, upload, submit
-    # macos-14 was retired (Nov 2026); use macos-15 (arm64)
-    runs-on: macos-15
+    # App Store Connect requires iOS 26 SDK (Xcode 26+); macos-26 ships Xcode 26.x
+    runs-on: macos-26
     timeout-minutes: 90
 
     env:
@@ -40,15 +40,15 @@ jobs:
       - name: Set build number
         run: |
           # GitHub Actions expressions cannot do arithmetic; offset in shell.
-          # Keeps CI builds above local Xcode uploads (project currently at 3).
+          # Keeps CI builds above prior TestFlight uploads (last successful archive was build 9).
           echo "BUILD_NUMBER=$(( ${{ github.run_number }} + 2 ))" >> "$GITHUB_ENV"
           echo "Using BUILD_NUMBER=$(( ${{ github.run_number }} + 2 ))"
 
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          # Default toolchain on macos-15 runner images
-          xcode-version: "16.4"
+          # iOS 26 SDK required by App Store Connect (Nov 2026+)
+          xcode-version: "26.6"
 
       - name: Show Xcode version
         run: xcodebuild -version
