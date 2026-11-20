@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B5A100022E9AF00100BASE02 /* BasePickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A100012E9AF00100BASE01 /* BasePickerViewModel.swift */; };
+		B5A100042E9AF00200C0FF02 /* PosterImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A100032E9AF00200C0FF01 /* PosterImageCache.swift */; };
 		3E1ACE7929DB6DEF007A6E00 /* MoviePickerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1ACE7829DB6DEF007A6E00 /* MoviePickerApp.swift */; };
 		3E1ACE7B29DB6DEF007A6E00 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1ACE7A29DB6DEF007A6E00 /* ContentView.swift */; };
 		3E1ACE7D29DB6DF2007A6E00 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E1ACE7C29DB6DF2007A6E00 /* Assets.xcassets */; };
@@ -73,6 +74,7 @@
 
 /* Begin PBXFileReference section */
 		B5A100012E9AF00100BASE01 /* BasePickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasePickerViewModel.swift; sourceTree = "<group>"; };
+		B5A100032E9AF00200C0FF01 /* PosterImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterImageCache.swift; sourceTree = "<group>"; };
 		3E1ACE7529DB6DEF007A6E00 /* MoviePicker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoviePicker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E1ACE7829DB6DEF007A6E00 /* MoviePickerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviePickerApp.swift; sourceTree = "<group>"; };
 		3E1ACE7A29DB6DEF007A6E00 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 				3E1ACE7829DB6DEF007A6E00 /* MoviePickerApp.swift */,
 				3E2000302A173D32006CC16B /* PickerViewModel.swift */,
 				B5A100012E9AF00100BASE01 /* BasePickerViewModel.swift */,
+				B5A100032E9AF00200C0FF01 /* PosterImageCache.swift */,
 				3E1ACE7A29DB6DEF007A6E00 /* ContentView.swift */,
 				3E2000322A173D95006CC16B /* DadModeViewModel.swift */,
 				3EC634102A082AC200B1A867 /* DadModeView.swift */,
@@ -417,6 +420,7 @@
 				3E5D7D4F2A10DE99000C9DBC /* MenuView.swift in Sources */,
 				3E2000312A173D32006CC16B /* PickerViewModel.swift in Sources */,
 				B5A100022E9AF00100BASE02 /* BasePickerViewModel.swift in Sources */,
+				B5A100042E9AF00200C0FF02 /* PosterImageCache.swift in Sources */,
 				3EC634112A082AC200B1A867 /* DadModeView.swift in Sources */,
 				3E5D7D572A162158000C9DBC /* BondPickerApp.swift in Sources */,
 				3E1ACEA329DB712E007A6E00 /* JamesBondMovie.swift in Sources */,

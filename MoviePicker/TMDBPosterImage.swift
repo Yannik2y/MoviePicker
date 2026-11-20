@@ -7,48 +7,65 @@
 
 import SwiftUI
 
-/// AsyncImage wrapper for TMDB posters with branded local fallback
+/// Cached TMDB poster with live URL resolve and branded local fallback
 struct TMDBPosterImage: View {
     let movie: Movie
+    var contentMode: ContentMode = .fill
+    
+    @State private var loadedImage: UIImage?
+    @State private var loadFailed = false
+    
+    private var resolvedURL: URL? {
+        movie.tmdbPosterURL ?? MovieService.shared.posterURL(for: movie)
+    }
     
     var body: some View {
         Group {
-            if let posterURL = movie.tmdbPosterURL {
-                AsyncImage(url: posterURL) { phase in
-                    switch phase {
-                    case .empty:
-                        placeholder(showProgress: true)
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    case .failure:
-                        localOrBrandedFallback
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
+            if let loadedImage {
+                Image(uiImage: loadedImage)
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
+            } else if let localName = localAssetName {
+                Image(localName)
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
             } else {
-                localOrBrandedFallback
+                placeholder(showProgress: resolvedURL != nil && !loadFailed)
             }
+        }
+        .task(id: "\(movie.id)|\(resolvedURL?.absoluteString ?? "")") {
+            await loadPoster()
         }
     }
     
-    @ViewBuilder
-    private var localOrBrandedFallback: some View {
-        if UIImage(named: movie.poster) != nil {
-            Image(movie.poster)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
+    private var localAssetName: String? {
+        UIImage(named: movie.poster) != nil ? movie.poster : nil
+    }
+    
+    private func loadPoster() async {
+        loadFailed = false
+        guard let url = resolvedURL else {
+            loadedImage = nil
+            return
+        }
+        if let cached = PosterImageCache.shared.image(for: url) {
+            loadedImage = cached
+            return
+        }
+        let image = await PosterImageCache.shared.load(url)
+        if Task.isCancelled { return }
+        if let image {
+            loadedImage = image
+            loadFailed = false
         } else {
-            placeholder(showProgress: false)
+            loadFailed = true
         }
     }
     
     private func placeholder(showProgress: Bool) -> some View {
         ZStack {
             Rectangle()
-                .fill(Color.white.opacity(0.1))
+                .fill(Color.white.opacity(0.12))
             if showProgress {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))

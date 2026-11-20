@@ -23,12 +23,14 @@
 /* Empty States */
 "empty.noMovies" = "No movies available";
 "empty.tryDifferent" = "Try selecting a different actor";
+"empty.tapToPick" = "Tap the picker button to reveal a film";
 
 /* Error Messages */
 "error.noMoviesForActor" = "No movies available for the selected actor. Please choose a different filter.";
 "error.unableToSelect" = "Unable to select a movie. Please try again.";
 "error.noMoviesFound" = "No movies found for %@. Please select a different actor.";
 "error.noCustomMovie" = "No custom movie selected. Tap the settings icon to choose one.";
+"error.missingAPIKey" = "Movie posters need a TMDB API key. Rebuild with the CI Config inject or add Secrets.plist.";
 
 /* Search */
 "search.title" = "Choose Your Movie";
