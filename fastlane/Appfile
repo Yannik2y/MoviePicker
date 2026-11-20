@@ -1,0 +1,6 @@
+# frozen_string_literal: true
+
+app_identifier("com.PeterPaul.007FilmPicker")
+team_id("7PAQG44S9V")
+
+# Prefer App Store Connect API key auth (see Fastfile). No Apple ID required in CI.
