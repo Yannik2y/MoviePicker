@@ -9,8 +9,7 @@
 //
 //  CI: GitHub Actions copies this template over Config.swift and injects
 //  TMDB_API_KEY from repository secrets before archiving (see docs/APP_STORE_CI.md).
-//  Only the __TMDB_API_KEY__ token is replaced — never a shared placeholder that
-//  also appears in hasValidAPIKey (that bug made every CI build report "no key").
+//  CI replaces the single __TMDB_API_KEY__ token in tmdbAPIKey below.
 //
 
 import Foundation
@@ -26,12 +25,11 @@ enum Config {
     static var tmdbAPIKey: String { "__TMDB_API_KEY__" }
 
     /// True when a non-placeholder key is present (required by TMDBService / MovieService).
+    /// Do not compare against the inject token string — CI replaces every __TMDB_API_KEY__
+    /// occurrence, which would turn `key != token` into `key != realKey` (always false).
     static var hasValidAPIKey: Bool {
         let key = tmdbAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        return !key.isEmpty
-            && key != unsetAPIKey
-            && key != "__TMDB_API_KEY__"
-            && key.count >= 16
+        return !key.isEmpty && key != unsetAPIKey && key.count >= 16
     }
 
     /// Key source label for diagnostics — never logs the key itself

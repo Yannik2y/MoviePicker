@@ -80,30 +80,30 @@ jobs:
           path = pathlib.Path("MoviePicker/Config.swift")
           text = path.read_text()
           key = os.environ["TMDB_API_KEY"].strip()
-          if "__TMDB_API_KEY__" not in text:
-              raise SystemExit("inject token __TMDB_API_KEY__ missing from Config.swift")
-          # Escape for Swift string literal
+          # Only the assignment line may contain the inject token.
+          assign = re.search(
+              r'static var tmdbAPIKey:\s*String\s*\{\s*"__TMDB_API_KEY__"\s*\}',
+              text,
+          )
+          if not assign:
+              raise SystemExit("inject assignment static var tmdbAPIKey { \"__TMDB_API_KEY__\" } not found")
+          if text.count("__TMDB_API_KEY__") != 1:
+              raise SystemExit(
+                  f"expected exactly 1 inject token, found {text.count('__TMDB_API_KEY__')}"
+              )
           escaped = (
               key.replace("\\", "\\\\")
                  .replace("\"", "\\\"")
                  .replace("\n", "\\n")
                  .replace("\r", "")
           )
-          new_text, n = re.subn(
-              r'__TMDB_API_KEY__',
-              escaped,
-              text,
-              count=0,
-          )
-          if n < 1:
-              raise SystemExit("failed to replace __TMDB_API_KEY__")
+          new_text = text.replace('__TMDB_API_KEY__', escaped, 1)
           if "__TMDB_API_KEY__" in new_text:
               raise SystemExit("inject token still present after replace")
-          # Ensure validation sentinel was not rewritten into the real key
-          if f'key != "{escaped}"' in new_text or f'!= "{escaped}"' in new_text:
-              raise SystemExit("refusing to ship Config where hasValidAPIKey compares against the real key")
+          if "unsetAPIKey" not in new_text:
+              raise SystemExit("missing unsetAPIKey sentinel after inject")
           path.write_text(new_text)
-          print(f"Config.swift generated for CI build (replaced {n} token(s), key_len={len(key)})")
+          print(f"Config.swift generated for CI build (key_len={len(key)})")
           PY
 
       - name: Verify App Store Connect secrets
