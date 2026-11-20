@@ -77,7 +77,7 @@ Tag pushes matching `v*` always run the release lane with **submit for review en
 
 CI sets `CURRENT_PROJECT_VERSION` from `github.run_number` so each workflow run gets a unique, increasing build. Marketing version (`MARKETING_VERSION` / `1.3`) stays whatever is in the Xcode project unless you bump it in a commit.
 
-Release jobs run on **`macos-26`** with **Xcode 26.6** (iOS 26 SDK). App Store Connect rejects binaries built with older SDKs.
+Release jobs run on the **`xcode-27`** runner image with **Xcode 27.2** (iOS 27 SDK). From April 2027, App Store Connect requires the iOS 27 SDK or later (`ITMS-90725`).
 
 **TestFlight-only** runs use Fastlane `upload_to_testflight`. **Submit for Review** uses `upload_to_app_store`, which requires a marketing version higher than any previously approved/closed train on App Store Connect.
 
@@ -107,7 +107,7 @@ bundle exec fastlane release
 | Code signing / provisioning failures | Ensure the API key is App Manager+, team `7PAQG44S9V` owns the App ID, and Automatic signing is enabled in the project |
 | “Build already exists” | Wait for a new workflow run (higher `run_number`) or bump `BUILD_NUMBER` |
 | “version number has been previously used” / closed train / not higher than approved | Bump `MARKETING_VERSION` in Xcode above the last approved version (e.g. `1.2` → `1.3`) |
-| SDK / Xcode too old (requires iOS 26 SDK) | Ensure the release workflow uses `macos-26` + Xcode `26.6` (or newer) |
+| `ITMS-90725` / SDK too old (requires iOS 27 SDK) | Ensure the release workflow uses `runs-on: xcode-27` + Xcode `27.2` (or newer) |
 | Submit fails on incomplete metadata | Finish listing/age rating/export compliance in ASC; CI does not rewrite metadata |
 | Review rejection | Fix in ASC or the app, then re-run the workflow |
 

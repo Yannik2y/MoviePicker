@@ -19,8 +19,8 @@ concurrency:
 jobs:
   release:
     name: Archive, upload, submit
-    # App Store Connect requires iOS 26 SDK (Xcode 26+); macos-26 ships Xcode 26.x
-    runs-on: macos-26
+    # ITMS-90725: from Apr 2027, ASC requires iOS 27 SDK (Xcode 27+). Use the xcode-27 image.
+    runs-on: xcode-27
     timeout-minutes: 90
 
     env:
@@ -40,15 +40,15 @@ jobs:
       - name: Set build number
         run: |
           # GitHub Actions expressions cannot do arithmetic; offset in shell.
-          # Keeps CI builds above prior TestFlight uploads (last successful archive was build 9).
+          # Keeps CI builds above prior TestFlight uploads (last delivery was build 11).
           echo "BUILD_NUMBER=$(( ${{ github.run_number }} + 2 ))" >> "$GITHUB_ENV"
           echo "Using BUILD_NUMBER=$(( ${{ github.run_number }} + 2 ))"
 
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          # iOS 26 SDK required by App Store Connect (Nov 2026+)
-          xcode-version: "26.6"
+          # iOS 27 SDK (clears ITMS-90725 ahead of the April 2027 cutoff)
+          xcode-version: "27.2"
 
       - name: Show Xcode version
         run: xcodebuild -version
