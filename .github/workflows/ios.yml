@@ -25,3 +25,16 @@ jobs:
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             build
+      - name: Unit Tests
+        run: |
+          # Prefer a concrete simulator when available; fall back to generic is not valid for test.
+          DEST=$(xcrun simctl list devices available | awk -F'[()]' '/iPhone/{print "platform=iOS Simulator,id="$2; exit}')
+          if [ -z "$DEST" ]; then
+            DEST='platform=iOS Simulator,name=iPhone 16'
+          fi
+          xcodebuild \
+            -scheme MoviePicker \
+            -destination "$DEST" \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            test

@@ -31,7 +31,8 @@ class MovieService: ObservableObject, MovieCatalogServing {
     @Published var moviesWithTMDBPosters: [Movie] = []
     @Published var isInitializingPosters = false
     
-    private let posterCacheKey = "bondPosterURLCache"
+    private let posterCacheKey = "bondPosterURLCache_v2"
+    private let legacyPosterCacheKey = "bondPosterURLCache"
     private let tmdbService: TMDBService
     private let maxConcurrentPosterFetches = 5
     
@@ -102,7 +103,7 @@ class MovieService: ObservableObject, MovieCatalogServing {
             func enqueueNext() {
                 guard let movie = iterator.next() else { return }
                 group.addTask { [tmdbService] in
-                    let url = await tmdbService.getBondMoviePosterURL(title: movie.title)
+                    let url = await tmdbService.getBondMoviePosterURL(title: movie.title, tmdbId: movie.tmdbId)
                     return (movie.cacheKey, url)
                 }
             }
@@ -146,7 +147,11 @@ class MovieService: ObservableObject, MovieCatalogServing {
     }
     
     private func loadPosterCache() -> [String: String] {
-        UserDefaults.standard.dictionary(forKey: posterCacheKey) as? [String: String] ?? [:]
+        if let modern = UserDefaults.standard.dictionary(forKey: posterCacheKey) as? [String: String], !modern.isEmpty {
+            return modern
+        }
+        // Migrate legacy title|year keys once; new writes use tmdb:id keys
+        return UserDefaults.standard.dictionary(forKey: legacyPosterCacheKey) as? [String: String] ?? [:]
     }
     
     private func savePosterCache(_ cache: [String: String]) {
@@ -175,5 +180,8 @@ class MovieService: ObservableObject, MovieCatalogServing {
 }
 
 private extension Movie {
-    var cacheKey: String { "\(title)|\(year)" }
+    var cacheKey: String {
+        if let tmdbId { return "tmdb:\(tmdbId)" }
+        return "\(title)|\(year)"
+    }
 }

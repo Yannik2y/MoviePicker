@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Shared view component used by ContentView, DadModeView, and CustomPickerView
 struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
@@ -152,11 +153,15 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
                 .accessibilityLabel(L10n.Common.close)
             }
             .padding()
-            .background(AppColors.errorBackground)
-            .cornerRadius(Layout.errorMessageCornerRadius)
+            .background(Theme.panelMaterial, in: RoundedRectangle(cornerRadius: Theme.toastCornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.toastCornerRadius, style: .continuous)
+                    .stroke(AppColors.errorBackground.opacity(0.8), lineWidth: 1)
+            )
             .padding(.horizontal, Layout.errorMessageHorizontalPadding)
             .padding(.bottom, Layout.errorMessageBottomPadding)
             .transition(.move(edge: .bottom).combined(with: .opacity))
+            .accessibilityAddTraits(.isStaticText)
             .onTapGesture {
                 errorDismissTask?.cancel()
                 viewModel.errorMessage = nil
@@ -165,6 +170,7 @@ struct SharedMoviePickerView<ViewModel: MoviePickerViewModelProtocol>: View {
         }
         .animation(.easeInOut, value: viewModel.errorMessage)
         .onAppear {
+            UIAccessibility.post(notification: .announcement, argument: errorMessage)
             errorDismissTask?.cancel()
             let task = DispatchWorkItem {
                 viewModel.errorMessage = nil

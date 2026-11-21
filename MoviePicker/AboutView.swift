@@ -18,8 +18,9 @@ struct AboutView: View {
                     // App Icon and Title
                     VStack(spacing: 16) {
                         Image(systemName: "film.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.cyan)
+                            .font(.system(.largeTitle, design: .rounded))
+                            .imageScale(.large)
+                            .foregroundColor(Theme.accent)
                         
                         Text(L10n.About.appName)
                             .font(.title)

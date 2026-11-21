@@ -40,14 +40,15 @@ enum AnimationTiming {
     static let errorDismissDelay: TimeInterval = 4.0
 }
 
-/// Color constants for consistent theming
+/// Color constants for consistent theming (backed by Theme tokens)
 enum AppColors {
-    static let posterBackground = Color.white.opacity(0.5)
-    static let menuBackground = Color.black.opacity(0.8)
-    static let menuButtonBackground = Color.black.opacity(0.5)
-    static let errorBackground = Color.red.opacity(0.9)
+    static let posterBackground = Color.white.opacity(0.45)
+    static let menuBackground = Color.black.opacity(0.72)
+    static let menuButtonBackground = Color.black.opacity(0.45)
+    static let errorBackground = Theme.danger
     static let buttonBackground = Color.white
     static let buttonForeground = Color.black
+    static var accent: Color { Theme.accent }
 }
 
 /// String constants (now using localized strings)
