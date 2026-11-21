@@ -1,39 +1,45 @@
-# Datenschutzerklärung - 007 Film Picker
+# Privacy Policy — 007 Film Picker
 
-## Datenschutz bei 007 Film Picker
+**Last updated:** November 2026
 
-**Letzte Aktualisierung:** Oktober 2025
+## Summary
 
-### Kurzfassung
-007 Film Picker sammelt **keine personenbezogenen Daten** und überträgt **keine Nutzerdaten** an externe Server.
+007 Film Picker does **not** track you and does **not** use analytics SDKs.  
+It stores a small amount of data **on your device** and talks to **The Movie Database (TMDB)** for movie search and posters.
 
-### Was wir sammeln
-**Nichts.** Diese App sammelt keine personenbezogenen Daten von Ihnen.
+## Data stored on your device
 
-### Lokale Datenspeicherung
-Die App speichert nur folgende Daten **lokal** auf Ihrem Gerät:
-- Ihre Filmauswahl-Geschichte (optional)
-- Ihre Favoriten-Filme (optional)
-- Onboarding-Status (einmalig)
+The app may store locally (via system preferences / files on the device):
 
-Diese Daten werden **nicht** an externe Server übertragen.
+- Movie selection history and favorites (optional, created when you pick films)
+- Your custom “Movie Picker” selection and its poster image (optional)
+- Onboarding completion flag
+- Cached Bond poster URLs for faster loading
 
-### TMDB API
-Die App nutzt die TMDB API (The Movie Database) nur für:
-- Film-Suche (Movie Picker Modus)
-- Film-Poster-Anzeige
+These local records are **not** uploaded to a server operated by the app author.
 
-**Keine Nutzerdaten** werden an TMDB übertragen.
+## Network: TMDB
 
-### Tracking
-**Nein.** Diese App führt kein Tracking durch und verwendet keine Analytics-Tools.
+The app uses the [TMDB API](https://www.themoviedb.org/) and TMDB image CDN to:
 
-### Kontakt
-Bei Fragen zum Datenschutz: [GitHub Issues](https://github.com/Yannik2y/MoviePicker/issues)
+- Search for movies when you type a query in Movie Picker (your search text is sent to TMDB)
+- Resolve cast / credits for a selected custom movie
+- Load and cache movie poster images
+- On first launch (or when the poster cache is empty), look up poster URLs for Bond catalog titles
 
-### Änderungen
-Diese Datenschutzerklärung kann bei Bedarf aktualisiert werden.
+An API key configured for the build is sent with those requests.  
+This product uses the TMDB API but is **not** endorsed or certified by TMDB.
 
----
+## What we do not do
 
-**Diese App respektiert Ihre Privatsphäre.** 🛡️
+- No advertising identifiers or third-party analytics
+- No account system, sign-in, or cloud sync of history
+- No sale of personal data
+
+## Contact
+
+Questions: [GitHub Issues](https://github.com/Yannik2y/MoviePicker/issues)
+
+## Changes
+
+This policy may be updated when app behavior changes. The “Last updated” date above reflects the latest revision.

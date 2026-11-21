@@ -76,7 +76,7 @@ struct HistoryView: View {
                     if selectedTab == 0 {
                         history.clearHistory()
                     } else {
-                        history.clearNonFavorites()
+                        history.clearFavorites()
                     }
                 }
             } message: {
@@ -168,7 +168,7 @@ struct HistoryEntryRow: View {
                         .font(.title3)
                         .foregroundColor(entry.isFavorite ? .yellow : .white.opacity(0.6))
                 }
-                .accessibilityLabel(entry.isFavorite ? L10n.History.tabFavorites : L10n.History.tabFavorites)
+                .accessibilityLabel(entry.isFavorite ? L10n.Accessibility.removeFavorite : L10n.Accessibility.addFavorite)
                 
                 ShareLink(item: shareText) {
                     Image(systemName: "square.and.arrow.up")

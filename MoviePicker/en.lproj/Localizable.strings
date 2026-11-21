@@ -29,7 +29,7 @@
 "error.noMoviesForActor" = "No movies available for the selected actor. Please choose a different filter.";
 "error.unableToSelect" = "Unable to select a movie. Please try again.";
 "error.noMoviesFound" = "No movies found for %@. Please select a different actor.";
-"error.noCustomMovie" = "No custom movie selected. Tap the settings icon to choose one.";
+"error.noCustomMovie" = "No custom movie selected. Open Host tools to choose one.";
 "error.missingAPIKey" = "Movie posters need a TMDB API key. Rebuild with the CI Config inject or add Secrets.plist.";
 
 /* Search */
@@ -52,11 +52,11 @@
 
 "instructions.moviePicker.title" = "Movie Picker";
 "instructions.moviePicker.subtitle" = "Pick ANY Movie";
-"instructions.moviePicker.step1" = "Select mode from menu";
-"instructions.moviePicker.step2" = "Triple tap the circle in the middle ⚡️";
-"instructions.moviePicker.step3" = "Search sheet opens automatically";
+"instructions.moviePicker.step1" = "Open the Pick tab and choose Movie Picker";
+"instructions.moviePicker.step2" = "Open Host tools from the toolbar menu";
+"instructions.moviePicker.step3" = "Search sheet opens";
 "instructions.moviePicker.step4" = "Select any movie";
-"instructions.moviePicker.step5" = "Picker always lands on it! 😏";
+"instructions.moviePicker.step5" = "Picker always lands on your selection";
 
 "instructions.dadMode.title" = "Dad Mode";
 "instructions.dadMode.subtitle" = "Always WM-Halbfinale 2014";
@@ -78,7 +78,16 @@
 /* Onboarding */
 "onboarding.ready.title" = "Ready to Go!";
 "onboarding.ready.subtitle" = "You're all set";
-"onboarding.ready.details" = "Choose your mode from the menu and start picking movies. Have fun!";
+"onboarding.ready.details" = "Start on Bond Picker, switch modes from the Pick tab, and explore Library when you want history. Have fun!";
+"menu.hostTools" = "Host tools";
+"menu.pick" = "Pick";
+"menu.library" = "Library";
+"menu.more" = "More";
+"accessibility.addFavorite" = "Add to Favorites";
+"accessibility.removeFavorite" = "Remove from Favorites";
+"accessibility.hostTools" = "Host tools for Movie Picker";
+"accessibility.openMenu" = "Open navigation";
+"tmdb.poweredBy" = "Powered by";
 
 /* About */
 "about.title" = "About";
@@ -96,8 +105,9 @@
 "about.tmdb.attribution" = "Movie poster images and data provided by The Movie Database (TMDB).";
 "about.tmdb.visit" = "Visit TMDB";
 "about.legal" = "Legal Notice";
-"about.legal.disclaimer" = "This app is not affiliated with Eon Productions, MGM, or the James Bond franchise. All movie titles and actor names are used for informational purposes only.";
-"about.legal.nonCommercial" = "✅ Non-Commercial Use: This app is for personal use only and does not generate revenue. TMDB API usage is covered under their free developer license.";
+"about.legal.disclaimer" = "Unofficial fan app. Not affiliated with, endorsed by, or licensed by Eon Productions, MGM, Danjaq, or the James Bond franchise. Titles and actor names are used for informational / entertainment purposes only.";
+"about.legal.nonCommercial" = "Non-commercial personal use. TMDB API usage follows their terms for developers.";
+"about.legal.unofficial" = "007 Film Picker is an unofficial catalog picker — not an official Bond product.";
 
 /* History */
 "history.title" = "History & Favorites";

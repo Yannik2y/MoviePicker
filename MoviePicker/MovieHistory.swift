@@ -102,6 +102,13 @@ class MovieHistory: ObservableObject {
         AppLogger.info("Non-favorite history cleared", category: .storage)
     }
     
+    /// Clear only favorites (keeps non-favorite history)
+    func clearFavorites() {
+        entries = entries.filter { !$0.isFavorite }
+        saveHistory()
+        AppLogger.info("Favorites cleared", category: .storage)
+    }
+    
     // MARK: - Persistence
     
     private func saveHistory() {

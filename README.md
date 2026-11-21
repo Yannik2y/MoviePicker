@@ -1,233 +1,102 @@
-# 🎬 007 Film Picker
+# 007 Film Picker
 
-A SwiftUI iOS app for randomly selecting James Bond movies with three unique modes, including a clever "prank" feature!
+A SwiftUI iOS app for picking James Bond movies — with Bond Picker as the core experience, plus Movie Picker (custom / host tools) and Dad Mode.
 
 ![iOS](https://img.shields.io/badge/iOS%20%2F%20iPadOS-17.0+-blue.svg)
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)
 ![SwiftUI](https://img.shields.io/badge/SwiftUI-5-green.svg)
 
-## 🎯 Features
+**Unofficial fan app** — not affiliated with, endorsed by, or licensed by Eon Productions, MGM, Danjaq, or the James Bond franchise.
 
-### Three Picker Modes:
+## Features
 
-1. **🎯 Bond Picker** - Randomly selects James Bond movies
-   - Filter by Bond actor (Sean Connery, Roger Moore, etc.)
-   - True random selection
-   
-2. **🎭 Movie Picker** - Custom movie selection (Prank Mode!)
-   - Search ANY movie from TMDB database
-   - Appears random but always lands on your pre-selected movie
-   - Hidden settings gear (triple-tap top-right corner)
-   - Perfect for "tricking" your movie-watching partner!
-   
-3. **🏆 Dad Mode** - Always selects "WM-Halbfinale 2014"
-   - Humorous inside joke mode
-   - Always lands on 2014 World Cup Semi-Final
+### Three picker modes
 
-### Additional Features:
-- ✨ Smooth scrolling animations with haptic feedback
-- 🎨 Beautiful dark theme UI
-- 🌍 Full English and German localization
-- 🖼️ Movie posters from TMDB
-- 📱 Actor filtering
-- ⚙️ Persistent settings
+1. **Bond Picker** (default) — Random James Bond film, optional actor filter
+2. **Movie Picker** — Host-selected film that the reveal always lands on (Host tools in the toolbar)
+3. **Dad Mode** — Always lands on “WM-Halbfinale 2014”
 
-## 🚀 Setup
+### Also
+
+- Poster reveal animation with haptics (respects Reduce Motion)
+- History, favorites, and stats
+- English and German localization
+- TMDB posters and custom search
+- Native tab / split navigation on iPhone and iPad
+
+## Setup
 
 ### Prerequisites
-- Xcode 15.0+
+
+- Xcode 16+ (CI uses Xcode 27.x)
 - iOS / iPadOS 17.0+
-- TMDB API Key (free) for search and remote posters
+- TMDB API key (free) for search and remote posters
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/MoviePicker.git
-   cd MoviePicker
-   ```
+1. Clone the repo and open `MoviePicker.xcodeproj`
+2. Configure a TMDB key (never commit a real key):
+   - Scheme env: `TMDB_API_KEY`, or
+   - `cp MoviePicker/Secrets.plist.template MoviePicker/Secrets.plist` and add the key to the target
+3. Build and run on a simulator or device
 
-2. **Get your TMDB API Key**
-   - Go to [TMDB](https://www.themoviedb.org/)
-   - Create a free account
-   - Navigate to Settings → API
-   - Request an API key (Developer)
-   - Copy your API Key (v3 auth)
+See [`PRIVACY.md`](PRIVACY.md) for what leaves the device (search queries + poster downloads to TMDB).
 
-3. **Configure API Key** (pick one; never commit a real key)
-   - **Scheme env:** Edit Scheme → Run → Arguments → Environment Variables → `TMDB_API_KEY` = your key
-   - **Secrets.plist:** `cp MoviePicker/Secrets.plist.template MoviePicker/Secrets.plist`, put your key in the plist, add `Secrets.plist` to the MoviePicker target in Xcode (file is gitignored)
+## How to use
 
-   The project builds without a key; TMDB search/posters show a clear error until configured.
+### Bond Picker
 
-4. **Open in Xcode**
-   ```bash
-   open MoviePicker.xcodeproj
-   ```
+1. Open the **Pick** tab (Bond is the default mode)
+2. Optionally filter by actor
+3. Tap the picker button
 
-5. **Build and Run**
-   - Select iPhone or iPad simulator/device
-   - Press `Cmd + R`
+### Movie Picker (host tools)
 
-## 🔒 Security Note
+1. Switch to **Movie Picker** on the Pick tab
+2. Open **Host tools** from the toolbar menu
+3. Search TMDB and select a film
+4. Tap the picker — it always lands on your selection
 
-`Config.swift` is a **checked-in stub**. Real keys belong in the scheme environment or gitignored `Secrets.plist` — never in markdown or committed Swift.
+### Dad Mode
 
-## 🏗️ Architecture
+1. Switch to **Dad Mode**
+2. Tap the picker — always WM-Halbfinale 2014
 
-### MVVM Pattern
-```
-Views → ViewModels → Services → Models
-```
+## Architecture
 
-### Key Components:
-
-**ViewModels:**
-- `PickerViewModel` - Random Bond movie selection
-- `DadModeViewModel` - Always WM-Halbfinale 2014
-- `CustomPickerViewModel` - Custom movie selection
-
-**Services:**
-- `MovieService` - Movie data management
-- `TMDBService` - TMDB API integration
-- `CustomMovieStorage` - Persistent storage
-- `HapticManager` - Haptic feedback
-
-**Views:**
-- `SharedMoviePickerView` - Reusable picker UI
-- `MovieScrollingView` - Animation engine
-- `MovieSearchView` - TMDB search interface
-
-## 📁 Project Structure
+Composition root (`BondPickerApp`) injects `AppDependencies` (catalog, TMDB client, history, custom store, image loader). Features use environment / initializer injection rather than reaching into `.shared` singletons from views.
 
 ```
 MoviePicker/
-├── Models/
-│   ├── JamesBondMovie.swift      # Movie data model
-│   ├── BondActor.swift            # Actor enum
-│   └── CustomMovieStorage.swift   # Persistence
-├── ViewModels/
-│   ├── PickerViewModel.swift
-│   ├── DadModeViewModel.swift
-│   └── CustomPickerViewModel.swift
-├── Views/
-│   ├── ContentView.swift
-│   ├── SharedMoviePickerView.swift
-│   ├── MovieScrollingView.swift
-│   └── ...
-├── Services/
-│   ├── MovieService.swift
-│   ├── TMDBService.swift
-│   └── HapticManager.swift
-├── Constants/
-│   ├── AppConstants.swift
-│   └── L10n.swift                 # Auto-generated localization
-├── Localization/
-│   ├── en.lproj/
-│   │   └── Localizable.strings
-│   └── de.lproj/
-│       └── Localizable.strings
-├── Config.swift                   # API keys (not in Git)
-└── Config.swift.template          # Template for setup
+  App/           BondPickerApp, AppDependencies, Theme, root shell
+  Features/      Picker, Search, History, Onboarding, About
+  Domain/        Movie, BondActor, PickerMode
+  Data/          TMDB client, catalog, persistence, images
 ```
 
-## 🌍 Localization
+## Localization
 
-The app supports English and German with type-safe localization:
+Type-safe keys via `L10n` (en / de).
 
-```swift
-// Usage
-Text(L10n.Menu.title)  // Compile-time safe!
-```
+## Testing
 
-## 🧪 Testing
-
-Run tests:
 ```bash
-# Unit Tests
-Cmd + U
-
-# Or via command line
-xcodebuild test -scheme MoviePicker -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -scheme MoviePicker -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
-## 🎨 UI/UX Features
+CI runs build and unit tests on pull requests (see `.github/workflows/ios.yml`).
 
-- **Smooth Animations:** Spring physics with 6-step scrolling
-- **Haptic Feedback:** Multi-level haptics (light/medium/heavy)
-- **Error Handling:** Auto-dismissing error messages (4 sec)
-- **Empty States:** Graceful handling of edge cases
-- **Loading States:** Progress indicators for API calls
-- **Dark Theme:** Consistent Bond-themed aesthetic
+## App Store / CI
 
-## 📱 How to Use
+Builds upload via GitHub Actions + Fastlane. See [`docs/APP_STORE_CI.md`](docs/APP_STORE_CI.md).
 
-### Bond Picker Mode:
-1. Open menu (☰)
-2. Select "Bond Picker"
-3. Optionally filter by actor
-4. Tap "Bond Picker" button
-5. Enjoy your randomly selected Bond movie!
+Historical checklists that may contradict the current app are listed in [`docs/OBSOLETE.md`](docs/OBSOLETE.md).
 
-### Movie Picker Mode (Prank):
-1. Open menu (☰)
-2. Select "Movie Picker"
-3. **Triple-tap top-right corner** to reveal settings
-4. Tap gear icon (⚙️)
-5. Search for any movie
-6. Select your movie
-7. Tap "Movie Picker" - it always lands on your choice! 😏
+## Legal / TMDB
 
-### Dad Mode:
-1. Open menu (☰)
-2. Select "Dad Mode"
-3. Tap "Bond Picker" button
-4. Always lands on "WM-Halbfinale 2014" 🏆
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is for personal use. All James Bond movie titles and actor names are used for informational purposes only.
-
-### TMDB Attribution
-
-This product uses the TMDB API but is not endorsed or certified by TMDB.
-
+This product uses the TMDB API but is not endorsed or certified by TMDB.  
 Movie poster images and data provided by [The Movie Database (TMDB)](https://www.themoviedb.org).
 
-## ⚖️ Legal Notice
+## Support
 
-This app is not affiliated with Eon Productions, MGM, or the James Bond franchise. 
-
-**Non-Commercial Use:** This app is for personal use only and does not generate revenue. TMDB API usage is covered under their free developer license.
-
-## 🚀 App Store releases (CI)
-
-Builds are archived and uploaded to App Store Connect via GitHub Actions + Fastlane. After you add the App Store Connect API key and TMDB secrets once, run **Actions → Release to App Store** (or push a `v*` tag) to upload and submit for review.
-
-See **[docs/APP_STORE_CI.md](docs/APP_STORE_CI.md)** for the full setup.
-
-## 📞 Support
-
-For setup help or bug reports, see [CUSTOM_PICKER_SETUP.md](CUSTOM_PICKER_SETUP.md) for detailed instructions.
-
-## 🙏 Acknowledgments
-
-- [TMDB](https://www.themoviedb.org) for movie data and posters
-- James Bond franchise for the inspiration
-- All Bond actors for the amazing movies
-
----
-
-Made with ❤️ and SwiftUI
-
-
+Bug reports: [GitHub Issues](https://github.com/Yannik2y/MoviePicker/issues)

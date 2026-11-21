@@ -30,6 +30,12 @@ struct AboutView: View {
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.8))
                             .multilineTextAlignment(.center)
+                        
+                        Text(L10n.About.legalUnofficial)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.65))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 16)
                     }
                     .padding(.top, 20)
                     
