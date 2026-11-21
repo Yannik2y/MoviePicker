@@ -57,20 +57,28 @@ class TMDBService: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    private var preferredLanguage: String {
-        Locale.current.language.languageCode?.identifier ?? "en"
+    private var preferredLanguageTag: String {
+        let language = Locale.current.language.languageCode?.identifier ?? "en"
+        let region = Locale.current.region?.identifier ?? "US"
+        return "\(language)-\(region)"
     }
     
-    init(session: URLSession? = nil) {
+    /// Actor-backed client for ID-based poster lookups
+    private let client: TMDBClient
+    
+    init(session: URLSession? = nil, client: TMDBClient? = nil) {
+        let resolvedSession: URLSession
         if let session {
-            self.session = session
+            resolvedSession = session
         } else {
             let config = URLSessionConfiguration.default
             config.timeoutIntervalForRequest = 15
             config.timeoutIntervalForResource = 30
             config.waitsForConnectivity = true
-            self.session = URLSession(configuration: config)
+            resolvedSession = URLSession(configuration: config)
         }
+        self.session = resolvedSession
+        self.client = client ?? TMDBClient(session: resolvedSession)
     }
     
     /// Search for movies by title
@@ -84,8 +92,8 @@ class TMDBService: ObservableObject {
         }
         
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        let language = preferredLanguage
-        let urlString = "\(baseURL)/search/movie?api_key=\(apiKey)&query=\(encodedQuery)&language=\(language)-US"
+        let language = preferredLanguageTag
+        let urlString = "\(baseURL)/search/movie?api_key=\(apiKey)&query=\(encodedQuery)&language=\(language)"
         
         guard let url = URL(string: urlString) else {
             throw TMDBError.invalidURL
@@ -117,20 +125,21 @@ class TMDBService: ObservableObject {
         return credits.cast.prefix(3).map { $0.name }
     }
     
-    /// Get poster URL for a Bond movie by title
-    func getBondMoviePosterURL(title: String) async -> URL? {
+    /// Get poster URL by stable TMDB id (preferred) or title search fallback
+    func getBondMoviePosterURL(title: String, tmdbId: Int? = nil) async -> URL? {
         do {
-            let movies = try await searchMovies(query: title)
-            let exactMatch = movies.first { $0.title.lowercased() == title.lowercased() }
-            let bestMatch = exactMatch ?? movies.first
-            
-            if let posterURL = bestMatch?.posterURL {
-                AppLogger.info("Found poster for '\(title)': \(posterURL.absoluteString)", category: .network)
-                return posterURL
-            } else {
-                AppLogger.warning("No poster found for '\(title)'", category: .network)
-                return nil
+            if let tmdbId {
+                if let url = try await client.posterURL(movieId: tmdbId) {
+                    AppLogger.info("Found poster for id \(tmdbId) ('\(title)'): \(url.absoluteString)", category: .network)
+                    return url
+                }
             }
+            if let url = try await client.posterURL(forTitle: title) {
+                AppLogger.info("Found poster for '\(title)' via search: \(url.absoluteString)", category: .network)
+                return url
+            }
+            AppLogger.warning("No poster found for '\(title)'", category: .network)
+            return nil
         } catch {
             AppLogger.error("Error fetching poster for '\(title)'", error: error, category: .network)
             return nil

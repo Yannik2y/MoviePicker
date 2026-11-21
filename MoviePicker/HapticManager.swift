@@ -9,8 +9,7 @@ import Foundation
 import SwiftUI
 import UIKit
 
-/// Manages haptic feedback throughout the app
-/// Follows Apple's Human Interface Guidelines for haptic feedback
+/// Manages haptic feedback throughout the app (gated by Reduce Motion).
 @MainActor
 final class HapticManager {
     static let shared = HapticManager()
@@ -22,7 +21,6 @@ final class HapticManager {
     private let notification = UINotificationFeedbackGenerator()
     
     private init() {
-        // Prepare generators for better responsiveness
         impactLight.prepare()
         impactMedium.prepare()
         impactHeavy.prepare()
@@ -30,26 +28,34 @@ final class HapticManager {
         notification.prepare()
     }
     
-    /// Light impact - for scrolling through movies
+    private var allowsDecorativeHaptics: Bool {
+        !UIAccessibility.isReduceMotionEnabled
+    }
+    
+    /// Light impact - for scrolling through movies (skipped when Reduce Motion is on)
     func lightImpact() {
+        guard allowsDecorativeHaptics else { return }
         impactLight.impactOccurred()
         impactLight.prepare()
     }
     
     /// Medium impact - for button presses
     func mediumImpact() {
+        guard allowsDecorativeHaptics else { return }
         impactMedium.impactOccurred()
         impactMedium.prepare()
     }
     
     /// Heavy impact - for final selection
     func heavyImpact() {
+        guard allowsDecorativeHaptics else { return }
         impactHeavy.impactOccurred()
         impactHeavy.prepare()
     }
     
     /// Selection changed - for picker changes
     func selectionChanged() {
+        guard allowsDecorativeHaptics else { return }
         selection.selectionChanged()
         selection.prepare()
     }
@@ -72,5 +78,3 @@ final class HapticManager {
         notification.prepare()
     }
 }
-
-

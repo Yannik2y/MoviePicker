@@ -15,6 +15,7 @@ struct MovieScrollingView: View {
     var metrics: AdaptiveLayoutMetrics
     var reduceMotion: Bool = false
     
+    @Environment(\.appDependencies) private var dependencies
     @State private var animationTask: Task<Void, Never>?
     
     var body: some View {
@@ -59,7 +60,7 @@ struct MovieScrollingView: View {
     private var idlePrompt: some View {
         VStack(spacing: 14) {
             Image(systemName: "film.stack")
-                .font(.system(size: 40, weight: .medium))
+                .font(.largeTitle.weight(.medium))
                 .foregroundColor(.white.opacity(0.7))
             Text(L10n.Empty.tapToPick)
                 .font(.headline)
@@ -68,8 +69,9 @@ struct MovieScrollingView: View {
                 .padding(.horizontal, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.posterBackground.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: Layout.posterCornerRadius, style: .continuous))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Layout.posterCornerRadius, style: .continuous))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(L10n.Empty.tapToPick)
     }
     
     private func startScrollingAnimation() {
@@ -87,11 +89,11 @@ struct MovieScrollingView: View {
         AppLogger.debug("Starting scrolling animation with \(steps) frames", category: .ui)
         
         // Prefetch poster images for scroll candidates + target
-        let prefetchURLs = movies.compactMap { $0.tmdbPosterURL ?? MovieService.shared.posterURL(for: $0) }
-        PosterImageCache.shared.prefetch(Array(prefetchURLs.prefix(12)))
+        let prefetchURLs = movies.compactMap { $0.tmdbPosterURL ?? dependencies.catalog.posterURL(for: $0) }
+        dependencies.posterCache.prefetch(Array(prefetchURLs.prefix(12)))
         if let target = targetMovie,
-           let url = target.tmdbPosterURL ?? MovieService.shared.posterURL(for: target) {
-            PosterImageCache.shared.prefetch([url])
+           let url = target.tmdbPosterURL ?? dependencies.catalog.posterURL(for: target) {
+            dependencies.posterCache.prefetch([url])
         }
         
         animationTask = Task { @MainActor in
@@ -134,6 +136,6 @@ struct MovieScrollingView: View {
     }
     
     private func resolved(_ movie: Movie) -> Movie {
-        MovieService.shared.resolvedMovie(matching: movie) ?? movie
+        dependencies.catalog.resolvedMovie(matching: movie) ?? movie
     }
 }

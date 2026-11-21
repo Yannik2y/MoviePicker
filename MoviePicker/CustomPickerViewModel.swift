@@ -14,6 +14,7 @@ final class CustomPickerViewModel: BasePickerViewModel {
     @Published var showingSettings: Bool = false
     
     private let storage: CustomMovieStorage
+    private let history: MovieHistory
     
     var customMovie: Movie? {
         storage.selectedMovie?.toMovie()
@@ -21,10 +22,11 @@ final class CustomPickerViewModel: BasePickerViewModel {
     
     init(
         movieService: MovieCatalogServing? = nil,
-        storage: CustomMovieStorage? = nil
+        storage: CustomMovieStorage? = nil,
+        history: MovieHistory? = nil
     ) {
-        // Default args cannot reference @MainActor statics; resolve on the main actor here.
         self.storage = storage ?? .shared
+        self.history = history ?? .shared
         super.init(movieService: movieService)
     }
     
@@ -34,7 +36,7 @@ final class CustomPickerViewModel: BasePickerViewModel {
             HapticManager.shared.warning()
             return nil
         }
-        MovieHistory.shared.addToHistory(movie: customMovie, mode: .customPicker)
+        history.addToHistory(movie: customMovie, mode: .customPicker)
         return customMovie
     }
     

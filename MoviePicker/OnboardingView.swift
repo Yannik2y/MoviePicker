@@ -164,14 +164,15 @@ struct OnboardingPageView: View {
                     .fill(page.iconColor.opacity(0.2))
                     .frame(width: 140, height: 140)
                 Image(systemName: page.icon)
-                    .font(.system(size: 70))
+                    .font(.system(.largeTitle, design: .rounded))
+                    .imageScale(.large)
                     .foregroundColor(page.iconColor)
             }
             
             // Content
             VStack(spacing: 16) {
                 Text(page.title)
-                    .font(.system(size: 32, weight: .bold))
+                    .font(.largeTitle.bold())
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                 

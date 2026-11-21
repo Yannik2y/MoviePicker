@@ -1,5 +1,7 @@
 # ✅ Ready to Ship - Final Checklist
 
+> **OBSOLETE** — see [`docs/OBSOLETE.md`](docs/OBSOLETE.md). Do not use as the current shipping checklist.
+
 ## 🎯 All Priorities Complete
 
 - [x] **Priority 1: Security** - API keys secured, .gitignore in place

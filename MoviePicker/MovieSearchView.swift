@@ -10,192 +10,203 @@ import SwiftUI
 
 /// View for searching and selecting custom movies from TMDB
 struct MovieSearchView: View {
-    @Environment(\.dismiss) var dismiss
-    @StateObject private var tmdbService = TMDBService.shared
-    @StateObject private var storage = CustomMovieStorage.shared
+    @Environment(\.appDependencies) private var dependencies
+    var clearPickerCallback: (() -> Void)?
+    
+    var body: some View {
+        MovieSearchBody(
+            tmdbService: dependencies.tmdb,
+            storage: dependencies.customStorage,
+            haptics: dependencies.haptics,
+            clearPickerCallback: clearPickerCallback
+        )
+    }
+}
+
+private struct MovieSearchBody: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var tmdbService: TMDBService
+    @ObservedObject var storage: CustomMovieStorage
+    let haptics: HapticManager
+    var clearPickerCallback: (() -> Void)?
     
     @State private var searchText = ""
     @State private var searchResults: [TMDBMovie] = []
     @State private var isSearching = false
     @FocusState private var isSearchFocused: Bool
     
-    var clearPickerCallback: (() -> Void)?
-    
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                HStack {
-                    Text(L10n.Search.title)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Button(action: {
-                        HapticManager.shared.lightImpact()
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                    .accessibilityLabel(L10n.Common.close)
-                }
-                .padding()
-                .padding(.top, 10)
+        NavigationStack {
+            ZStack {
+                Theme.stageBackground.ignoresSafeArea()
                 
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.white.opacity(0.6))
-                    TextField(L10n.Search.placeholder, text: $searchText)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .foregroundColor(.white)
-                        .textInputAutocapitalization(.never)
-                        .tint(.cyan)
-                        .focused($isSearchFocused)
-                        .accessibilityLabel(L10n.Search.placeholder)
-                    
-                    if !searchText.isEmpty {
-                        Button(action: {
-                            searchText = ""
-                            searchResults = []
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.white.opacity(0.6))
-                        }
-                        .accessibilityLabel(L10n.Common.close)
-                    }
-                }
-                .padding()
-                .background(Color.white.opacity(0.15))
-                .cornerRadius(12)
-                .padding(.horizontal)
-                .padding(.bottom)
-                
-                if let error = tmdbService.errorMessage {
-                    Text(error)
-                        .font(.footnote)
-                        .foregroundColor(.red.opacity(0.9))
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                
-                if let currentMovie = storage.selectedMovie {
-                    VStack(spacing: 8) {
-                        HStack {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                            Text(L10n.Search.currentSelection)
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.7))
-                            Spacer()
-                        }
+                VStack(spacing: 0) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(Theme.inkTertiary)
+                        TextField(L10n.Search.placeholder, text: $searchText)
+                            .textFieldStyle(.plain)
+                            .foregroundColor(Theme.inkPrimary)
+                            .textInputAutocapitalization(.never)
+                            .tint(Theme.modeCustom)
+                            .focused($isSearchFocused)
+                            .accessibilityLabel(L10n.Search.placeholder)
                         
-                        HStack(spacing: 12) {
-                            if let posterImage = storage.posterImage {
-                                Image(uiImage: posterImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 75)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                            } else {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(width: 50, height: 75)
-                                    .overlay(
-                                        Image(systemName: "film.fill")
-                                            .foregroundColor(.white.opacity(0.5))
-                                    )
+                        if !searchText.isEmpty {
+                            Button {
+                                searchText = ""
+                                searchResults = []
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(Theme.inkTertiary)
                             }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(currentMovie.title)
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text(currentMovie.actor)
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .lineLimit(1)
-                            }
-                            Spacer()
+                            .accessibilityLabel(L10n.Common.close)
                         }
-                        .padding()
-                        .background(Color.white.opacity(0.1))
-                        .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom)
-                }
-                
-                Divider()
-                    .background(Color.white.opacity(0.2))
-                
-                if isSearching {
-                    VStack {
-                        Spacer()
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(1.5)
-                        Text(L10n.Search.searching)
-                            .foregroundColor(.white.opacity(0.7))
-                            .padding(.top)
-                        Spacer()
-                    }
-                } else if searchResults.isEmpty && !searchText.isEmpty {
-                    VStack(spacing: 16) {
-                        Spacer()
-                        Image(systemName: "film.slash")
-                            .font(.system(size: 60))
-                            .foregroundColor(.white.opacity(0.3))
-                        Text(L10n.Search.noResults)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text(L10n.Search.tryDifferent)
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.6))
-                        Spacer()
-                    }
-                } else if searchResults.isEmpty {
-                    VStack(spacing: 16) {
-                        Spacer()
-                        Image(systemName: "popcorn.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.cyan)
-                        Text(L10n.Search.searchAny)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text(L10n.Search.prankHint)
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.6))
-                            .multilineTextAlignment(.center)
-                        Spacer()
                     }
                     .padding()
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(searchResults) { movie in
-                                MovieSearchResultRow(movie: movie) {
-                                    selectMovie(movie)
-                                }
-                            }
-                        }
-                        .padding()
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Theme.listCornerRadius, style: .continuous))
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                    
+                    if let error = tmdbService.errorMessage {
+                        Text(error)
+                            .font(.footnote)
+                            .foregroundColor(Theme.danger)
+                            .padding(.horizontal)
+                            .padding(.bottom, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    if let currentMovie = storage.selectedMovie {
+                        currentSelectionCard(currentMovie)
+                    }
+                    
+                    Divider().background(Theme.inkTertiary.opacity(0.4))
+                    
+                    resultsArea
+                }
+                .frame(maxWidth: 720)
+                .frame(maxWidth: .infinity)
+            }
+            .navigationTitle(L10n.Search.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L10n.Common.done) {
+                        haptics.lightImpact()
+                        dismiss()
                     }
                 }
             }
-            .frame(maxWidth: 720)
-            .frame(maxWidth: .infinity)
+            .task(id: searchText) {
+                await performSearch()
+            }
+            .onAppear {
+                isSearchFocused = true
+                if !Config.hasValidAPIKey {
+                    tmdbService.errorMessage = TMDBError.noAPIKey.localizedDescription
+                }
+            }
         }
-        .task(id: searchText) {
-            await performSearch()
+    }
+    
+    @ViewBuilder
+    private func currentSelectionCard(_ currentMovie: CustomMovieData) -> some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                Text(L10n.Search.currentSelection)
+                    .font(.subheadline)
+                    .foregroundColor(Theme.inkSecondary)
+                Spacer()
+            }
+            
+            HStack(spacing: 12) {
+                if let posterImage = storage.posterImage {
+                    Image(uiImage: posterImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 75)
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                } else {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 50, height: 75)
+                        .overlay(Image(systemName: "film.fill").foregroundColor(Theme.inkTertiary))
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(currentMovie.title)
+                        .font(.headline)
+                        .foregroundColor(Theme.inkPrimary)
+                    Text(currentMovie.actor)
+                        .font(.caption)
+                        .foregroundColor(Theme.inkSecondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
-        .onAppear {
-            isSearchFocused = true
-            if !Config.hasValidAPIKey {
-                tmdbService.errorMessage = TMDBError.noAPIKey.localizedDescription
+        .padding(.horizontal)
+        .padding(.bottom)
+    }
+    
+    @ViewBuilder
+    private var resultsArea: some View {
+        if isSearching {
+            VStack {
+                Spacer()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+                Text(L10n.Search.searching)
+                    .foregroundColor(Theme.inkSecondary)
+                    .padding(.top)
+                Spacer()
+            }
+        } else if searchResults.isEmpty && !searchText.isEmpty {
+            VStack(spacing: 16) {
+                Spacer()
+                Image(systemName: "film.slash")
+                    .font(.largeTitle)
+                    .foregroundColor(Theme.inkTertiary)
+                Text(L10n.Search.noResults)
+                    .font(.headline)
+                    .foregroundColor(Theme.inkPrimary)
+                Text(L10n.Search.tryDifferent)
+                    .font(.subheadline)
+                    .foregroundColor(Theme.inkTertiary)
+                Spacer()
+            }
+        } else if searchResults.isEmpty {
+            VStack(spacing: 16) {
+                Spacer()
+                Image(systemName: "popcorn.fill")
+                    .font(.largeTitle)
+                    .foregroundColor(Theme.modeCustom)
+                Text(L10n.Search.searchAny)
+                    .font(.headline)
+                    .foregroundColor(Theme.inkPrimary)
+                Text(L10n.Search.prankHint)
+                    .font(.subheadline)
+                    .foregroundColor(Theme.inkTertiary)
+                    .multilineTextAlignment(.center)
+                Spacer()
+            }
+            .padding()
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(searchResults) { movie in
+                        MovieSearchResultRow(movie: movie) {
+                            selectMovie(movie)
+                        }
+                    }
+                }
+                .padding()
             }
         }
     }
@@ -210,7 +221,6 @@ struct MovieSearchView: View {
         
         isSearching = true
         tmdbService.errorMessage = nil
-        AppLogger.debug("Searching for: '\(query)'", category: .network)
         
         do {
             try await Task.sleep(nanoseconds: 500_000_000)
@@ -218,9 +228,8 @@ struct MovieSearchView: View {
             let results = try await tmdbService.searchMovies(query: query)
             try Task.checkCancellation()
             searchResults = results
-            AppLogger.info("Search completed: \(results.count) results for '\(query)'", category: .network)
         } catch is CancellationError {
-            // Newer keystroke superseded this search
+            // superseded
         } catch {
             AppLogger.error("Search failed for '\(query)'", error: error, category: .network)
             tmdbService.errorMessage = error.localizedDescription
@@ -230,28 +239,24 @@ struct MovieSearchView: View {
     }
     
     private func selectMovie(_ movie: TMDBMovie) {
-        HapticManager.shared.mediumImpact()
-        AppLogger.info("User selected movie: '\(movie.title)' (\(movie.year))", category: .ui)
+        haptics.mediumImpact()
         
         Task {
             do {
                 let cast = try await tmdbService.getMovieCredits(movieId: movie.id)
-                
                 var posterData: Data?
                 if let posterURL = movie.posterURL {
                     posterData = try? await URLSession.shared.data(from: posterURL).0
                 }
-                
                 storage.saveMovie(movie, cast: cast, posterData: posterData)
                 clearPickerCallback?()
-                HapticManager.shared.success()
-                
+                haptics.success()
                 try await Task.sleep(nanoseconds: 500_000_000)
                 dismiss()
             } catch {
                 AppLogger.error("Failed to select movie '\(movie.title)'", error: error, category: .network)
                 tmdbService.errorMessage = error.localizedDescription
-                HapticManager.shared.error()
+                haptics.error()
             }
         }
     }
@@ -269,54 +274,47 @@ struct MovieSearchResultRow: View {
                         AsyncImage(url: posterURL) { phase in
                             switch phase {
                             case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                                image.resizable().aspectRatio(contentMode: .fill)
                             case .empty:
                                 ProgressView()
                             default:
                                 Image(systemName: "film.fill")
-                                    .foregroundColor(.white.opacity(0.3))
+                                    .foregroundColor(Theme.inkTertiary)
                             }
                         }
                     } else {
                         Image(systemName: "film.fill")
-                            .foregroundColor(.white.opacity(0.3))
+                            .foregroundColor(Theme.inkTertiary)
                     }
                 }
                 .frame(width: 60, height: 90)
                 .background(Color.white.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(movie.title)
                         .font(.headline)
-                        .foregroundColor(.white)
-                    
+                        .foregroundColor(Theme.inkPrimary)
                     if movie.year > 0 {
                         Text(verbatim: String(movie.year))
                             .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(Theme.inkSecondary)
                     }
-                    
                     if let overview = movie.overview, !overview.isEmpty {
                         Text(overview)
                             .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
+                            .foregroundColor(Theme.inkTertiary)
                             .lineLimit(2)
                     }
                 }
-                
                 Spacer()
-                
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.white.opacity(0.3))
+                    .foregroundColor(Theme.inkTertiary)
             }
             .padding()
-            .background(Color.white.opacity(0.1))
-            .cornerRadius(12)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: Theme.listCornerRadius, style: .continuous))
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         .accessibilityLabel("\(movie.title), \(movie.year > 0 ? String(movie.year) : "")")
     }
 }

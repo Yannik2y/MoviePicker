@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum CurrentView {
+enum CurrentView: Hashable {
     case contentView
     case dadModeView
     case customPickerView

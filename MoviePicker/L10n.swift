@@ -19,6 +19,7 @@ enum L10n {
         static var legal: String { NSLocalizedString("about.legal", comment: "") }
         static var legalDisclaimer: String { NSLocalizedString("about.legal.disclaimer", comment: "") }
         static var legalNoncommercial: String { NSLocalizedString("about.legal.nonCommercial", comment: "") }
+        static var legalUnofficial: String { NSLocalizedString("about.legal.unofficial", comment: "") }
         static var movieData: String { NSLocalizedString("about.movieData", comment: "") }
         static var title: String { NSLocalizedString("about.title", comment: "") }
         static var tmdbAttribution: String { NSLocalizedString("about.tmdb.attribution", comment: "") }
@@ -29,6 +30,10 @@ enum L10n {
     enum Accessibility {
         static var pickerButtonHint: String { NSLocalizedString("accessibility.pickerButton.hint", comment: "") }
         static var pickerButtonLabel: String { NSLocalizedString("accessibility.pickerButton.label", comment: "") }
+        static var addFavorite: String { NSLocalizedString("accessibility.addFavorite", comment: "") }
+        static var removeFavorite: String { NSLocalizedString("accessibility.removeFavorite", comment: "") }
+        static var hostTools: String { NSLocalizedString("accessibility.hostTools", comment: "") }
+        static var openMenu: String { NSLocalizedString("accessibility.openMenu", comment: "") }
     }
 
     enum Button {
@@ -93,6 +98,14 @@ enum L10n {
         static var moviePicker: String { NSLocalizedString("menu.moviePicker", comment: "") }
         static var history: String { NSLocalizedString("menu.history", comment: "") }
         static var title: String { NSLocalizedString("menu.title", comment: "") }
+        static var hostTools: String { NSLocalizedString("menu.hostTools", comment: "") }
+        static var pick: String { NSLocalizedString("menu.pick", comment: "") }
+        static var library: String { NSLocalizedString("menu.library", comment: "") }
+        static var more: String { NSLocalizedString("menu.more", comment: "") }
+    }
+    
+    enum TMDB {
+        static var poweredBy: String { NSLocalizedString("tmdb.poweredBy", comment: "") }
     }
 
     enum History {

@@ -11,6 +11,13 @@ import SwiftUI
 /// Dad Mode: always picks the 2014 World Cup Semifinal
 @MainActor
 final class DadModeViewModel: BasePickerViewModel {
+    private let history: MovieHistory
+    
+    init(movieService: MovieCatalogServing? = nil, history: MovieHistory? = nil) {
+        self.history = history ?? .shared
+        super.init(movieService: movieService)
+    }
+    
     var wm2014Movie: Movie? {
         movieService.fifaMovie
     }
@@ -21,7 +28,7 @@ final class DadModeViewModel: BasePickerViewModel {
             HapticManager.shared.error()
             return nil
         }
-        MovieHistory.shared.addToHistory(movie: movie, mode: .dadMode)
+        history.addToHistory(movie: movie, mode: .dadMode)
         return movie
     }
 }

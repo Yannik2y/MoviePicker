@@ -53,6 +53,9 @@
 		3EC659E42E96631B00B31EF0 /* DeviceHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659DE2E96631B00B31EF0 /* DeviceHelper.swift */; };
 		3EC659E52E96631B00B31EF0 /* MovieHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC659E02E96631B00B31EF0 /* MovieHistory.swift */; };
 		3EE719DC2E98FD22009C1CA0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3EE719DB2E98FD22009C1CA0 /* PrivacyInfo.xcprivacy */; };
+		B5A200022E9BF00100THEME2 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A200012E9BF00100THEME1 /* Theme.swift */; };
+		B5A200042E9BF00100DEPS02 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A200032E9BF00100DEPS01 /* AppDependencies.swift */; };
+		B5A200062E9BF00100CLIENT /* TMDBClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A200052E9BF00100CLIENT /* TMDBClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,6 +129,9 @@
 		3EC659E12E96631B00B31EF0 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		3EE719DB2E98FD22009C1CA0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3EE719DF2E9AF142009C1CA0 /* PRIVACY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRIVACY.md; sourceTree = "<group>"; };
+		B5A200012E9BF00100THEME1 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		B5A200032E9BF00100DEPS01 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
+		B5A200052E9BF00100CLIENT /* TMDBClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TMDBClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +197,9 @@
 				3E3372982E8EC91B00C5DF7A /* CustomMovieView.swift */,
 				3E3372992E8EC91B00C5DF7A /* CustomPickerView.swift */,
 				3EC659D42E965BF300B31EF0 /* Config.swift */,
+				B5A200052E9BF00100CLIENT /* TMDBClient.swift */,
+				B5A200032E9BF00100DEPS01 /* AppDependencies.swift */,
+				B5A200012E9BF00100THEME1 /* Theme.swift */,
 				3EC659D52E965BF300B31EF0 /* Config.swift.template */,
 				3EC659D62E965BF300B31EF0 /* Logger.swift */,
 				3E33729A2E8EC91B00C5DF7A /* CustomPickerViewModel.swift */,
@@ -429,6 +438,9 @@
 				3E33729F2E8EC91B00C5DF7A /* CustomPickerViewModel.swift in Sources */,
 				3EC659D32E958A5D00B31EF0 /* TMDBPosterImage.swift in Sources */,
 				3EC659D82E965BF300B31EF0 /* Config.swift in Sources */,
+				B5A200062E9BF00100CLIENT /* TMDBClient.swift in Sources */,
+				B5A200042E9BF00100DEPS02 /* AppDependencies.swift in Sources */,
+				B5A200022E9BF00100THEME2 /* Theme.swift in Sources */,
 				3EC659D92E965BF300B31EF0 /* Logger.swift in Sources */,
 				3EC659E22E96631B00B31EF0 /* OnboardingView.swift in Sources */,
 				3EC659E32E96631B00B31EF0 /* HistoryView.swift in Sources */,
@@ -547,7 +559,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -603,7 +615,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -628,7 +640,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "007 Film Picker";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -669,7 +681,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "007 Film Picker";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

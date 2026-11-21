@@ -2,166 +2,290 @@
 //  MoviePickerApp.swift
 //  MoviePicker
 //
-//  Created by Yannik Chlechowitz on 03.04.23.
+//  Root shell: iPhone TabView + iPad NavigationSplitView.
+//  Bond Picker is the default Pick mode.
 //
 
 import SwiftUI
 
-struct MoviePickerApp: View {
-    @StateObject var contentViewVM = PickerViewModel()
-    @StateObject var dadModeViewVM = DadModeViewModel()
-    @StateObject var customPickerVM = CustomPickerViewModel()
+enum AppTab: Hashable {
+    case pick
+    case library
+    case more
+}
 
-    @State private var currentView: CurrentView = .contentView
-    @State private var isShowingMenu = false
+enum SidebarItem: Hashable {
+    case bond
+    case custom
+    case dad
+    case library
+    case instructions
+    case about
+}
+
+struct MoviePickerApp: View {
+    @Environment(\.appDependencies) private var dependencies
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    
+    @StateObject private var contentViewVM: PickerViewModel
+    @StateObject private var dadModeViewVM: DadModeViewModel
+    @StateObject private var customPickerVM: CustomPickerViewModel
+    
+    @State private var selectedTab: AppTab = .pick
+    @State private var pickMode: CurrentView = .contentView
+    @State private var sidebarSelection: SidebarItem? = .bond
     @State private var showingOnboarding = false
+    @State private var showingInstructions = false
+    @State private var showingAbout = false
     
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
-
+    
+    init() {
+        let deps = AppDependencies.live
+        _contentViewVM = StateObject(wrappedValue: PickerViewModel(
+            movieService: deps.catalog,
+            history: deps.history
+        ))
+        _dadModeViewVM = StateObject(wrappedValue: DadModeViewModel(
+            movieService: deps.catalog,
+            history: deps.history
+        ))
+        _customPickerVM = StateObject(wrappedValue: CustomPickerViewModel(
+            movieService: deps.catalog,
+            storage: deps.customStorage,
+            history: deps.history
+        ))
+    }
+    
     var body: some View {
-        GeometryReader { geo in
-            let metrics = AdaptiveLayoutMetrics(
-                horizontalSizeClass: horizontalSizeClass,
-                verticalSizeClass: verticalSizeClass,
-                size: geo.size
-            )
-            
-            ZStack {
-                switch currentView {
-                case .contentView:
-                    ContentView(viewModel: contentViewVM)
-                case .dadModeView:
-                    DadModeView(viewModel: dadModeViewVM)
-                case .customPickerView:
-                    CustomPickerView(viewModel: customPickerVM)
-                }
-                
-                // Menu button
-                VStack {
-                    HStack {
-                        MenuButton(action: { isShowingMenu.toggle() }, isDadMode: currentView == .dadModeView)
-                            .hoverEffect(.highlight)
-                        Spacer()
-                    }
-                    Spacer()
-                }
-                .padding(.top, 8)
-                .zIndex(10)
-                
-                if isShowingMenu {
-                    menuOverlay(metrics: metrics)
-                        .zIndex(20)
-                }
-                
-                if currentView == .customPickerView {
-                    secretHitTarget(metrics: metrics, in: geo.size)
-                        .zIndex(15)
-                }
-                
-                tmdbAttribution
+        Group {
+            if horizontalSizeClass == .regular {
+                ipadSplitView
+            } else {
+                iphoneTabView
             }
         }
+        .preferredColorScheme(.dark)
+        .tint(Theme.accent)
         .sheet(isPresented: $showingOnboarding) {
             OnboardingView(isPresented: $showingOnboarding)
-                .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.large])
+                .presentationDetents([.large])
         }
-        .onChange(of: isShowingMenu) { _, newValue in
-            if newValue { resetAllPickerState() }
+        .sheet(isPresented: $showingInstructions) {
+            InstructionsView()
         }
-        .onChange(of: currentView) { _, _ in
-            resetAllPickerState()
+        .sheet(isPresented: $showingAbout) {
+            AboutView()
         }
-        .onAppear {
-            if !hasCompletedOnboarding {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    showingOnboarding = true
+        .onChange(of: pickMode) { _, _ in
+            resetPickerRevealState()
+        }
+        .onAppear(perform: handleLaunch)
+    }
+    
+    // MARK: - iPhone
+    
+    private var iphoneTabView: some View {
+        TabView(selection: $selectedTab) {
+            NavigationStack {
+                pickStage
+                    .navigationTitle(L10n.About.appName)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar { pickToolbar }
+            }
+            .tabItem { Label(L10n.Menu.pick, systemImage: "film") }
+            .tag(AppTab.pick)
+            
+            NavigationStack {
+                HistoryView()
+            }
+            .tabItem { Label(L10n.Menu.library, systemImage: "books.vertical") }
+            .tag(AppTab.library)
+            
+            NavigationStack {
+                moreList
+                    .navigationTitle(L10n.Menu.more)
+            }
+            .tabItem { Label(L10n.Menu.more, systemImage: "ellipsis.circle") }
+            .tag(AppTab.more)
+        }
+    }
+    
+    // MARK: - iPad
+    
+    private var ipadSplitView: some View {
+        NavigationSplitView {
+            List(selection: $sidebarSelection) {
+                Section(L10n.Menu.pick) {
+                    Label(L10n.Menu.bondPicker, systemImage: "scope")
+                        .tag(SidebarItem.bond)
+                    Label(L10n.Menu.moviePicker, systemImage: "target")
+                        .tag(SidebarItem.custom)
+                    Label(L10n.Menu.dadMode, systemImage: "trophy.fill")
+                        .tag(SidebarItem.dad)
+                }
+                Section {
+                    Label(L10n.Menu.library, systemImage: "books.vertical")
+                        .tag(SidebarItem.library)
+                    Label(L10n.Menu.instructions, systemImage: "questionmark.circle")
+                        .tag(SidebarItem.instructions)
+                    Label(L10n.About.title, systemImage: "info.circle")
+                        .tag(SidebarItem.about)
                 }
             }
-            // UITesting launch argument
-            if ProcessInfo.processInfo.arguments.contains("-UITesting") {
-                hasCompletedOnboarding = true
-                showingOnboarding = false
+            .navigationTitle(L10n.About.appName)
+        } detail: {
+            NavigationStack {
+                detailContent
+                    .toolbar {
+                        if pickMode == .customPickerView {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                hostToolsMenu
+                            }
+                        }
+                    }
             }
-            if ProcessInfo.processInfo.arguments.contains("-SkipOnboarding") {
-                hasCompletedOnboarding = true
+        }
+        .onChange(of: sidebarSelection) { _, item in
+            guard let item else { return }
+            switch item {
+            case .bond:
+                pickMode = .contentView
+            case .custom:
+                pickMode = .customPickerView
+            case .dad:
+                pickMode = .dadModeView
+            case .library, .instructions, .about:
+                break
             }
         }
     }
     
     @ViewBuilder
-    private func menuOverlay(metrics: AdaptiveLayoutMetrics) -> some View {
-        ZStack(alignment: .leading) {
-            Color.black.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { isShowingMenu = false }
+    private var detailContent: some View {
+        switch sidebarSelection {
+        case .library:
+            HistoryView()
+        case .instructions:
+            InstructionsView()
+        case .about:
+            AboutView()
+        case .bond, .custom, .dad, .none:
+            pickStage
+        }
+    }
+    
+    // MARK: - Pick stage
+    
+    private var pickStage: some View {
+        VStack(spacing: 0) {
+            Picker(L10n.Menu.title, selection: $pickMode) {
+                Text(L10n.Menu.bondPicker).tag(CurrentView.contentView)
+                Text(L10n.Menu.moviePicker).tag(CurrentView.customPickerView)
+                Text(L10n.Menu.dadMode).tag(CurrentView.dadModeView)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.top, 8)
+            .accessibilityLabel(L10n.Menu.title)
             
-            if metrics.isRegularWidth {
-                MenuView(isShowingMenu: $isShowingMenu, currentView: $currentView)
-                    .frame(width: metrics.menuPanelWidth)
-                    .frame(maxHeight: .infinity)
-                    .background(AppColors.menuBackground)
-                    .transition(.move(edge: .leading))
-            } else {
-                MenuView(isShowingMenu: $isShowingMenu, currentView: $currentView)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .background(AppColors.menuBackground)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-            }
+            modeContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isShowingMenu)
-    }
-    
-    private func secretHitTarget(metrics: AdaptiveLayoutMetrics, in size: CGSize) -> some View {
-        let hit = metrics.secretHitSize
-        return VStack {
-            Spacer()
-                .frame(height: size.height * 0.42)
+        .background {
+            Image("appBackground")
+                .resizable()
+                .scaledToFill()
+                .overlay(Theme.appScrim)
+                .ignoresSafeArea()
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             HStack {
                 Spacer()
-                Circle()
-                    .fill(Color.white.opacity(0.04))
-                    .frame(width: hit, height: hit)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.15), lineWidth: 1)
-                    )
-                    .contentShape(Circle())
-                    .onTapGesture(count: 3) {
-                        customPickerVM.showingSettings = true
-                        HapticManager.shared.success()
-                    }
-                    .accessibilityHidden(true)
-                Spacer()
-            }
-            Spacer()
-        }
-        .allowsHitTesting(true)
-    }
-    
-    private var tmdbAttribution: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("Powered by")
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(L10n.TMDB.poweredBy)
                         .font(.caption2)
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(Theme.inkTertiary)
                     Image("tmdb_logo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(height: 12)
+                        .frame(height: 10)
                 }
-                .padding(.trailing, 8)
-                .padding(.bottom, 8)
+                .padding(.trailing, 12)
+                .padding(.bottom, 4)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(L10n.TMDB.poweredBy) TMDB")
+            }
+            .allowsHitTesting(false)
+        }
+    }
+    
+    @ViewBuilder
+    private var modeContent: some View {
+        switch pickMode {
+        case .contentView:
+            ContentView(viewModel: contentViewVM)
+        case .dadModeView:
+            DadModeView(viewModel: dadModeViewVM)
+        case .customPickerView:
+            CustomPickerView(viewModel: customPickerVM)
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var pickToolbar: some ToolbarContent {
+        if pickMode == .customPickerView {
+            ToolbarItem(placement: .topBarTrailing) {
+                hostToolsMenu
             }
         }
-        .allowsHitTesting(false)
     }
-
-    private func resetAllPickerState() {
+    
+    private var hostToolsMenu: some View {
+        Menu {
+            Button {
+                customPickerVM.openSettings()
+                dependencies.haptics.success()
+            } label: {
+                Label(L10n.Menu.hostTools, systemImage: "slider.horizontal.3")
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+        }
+        .accessibilityLabel(L10n.Accessibility.hostTools)
+    }
+    
+    private var moreList: some View {
+        List {
+            Button {
+                showingInstructions = true
+            } label: {
+                Label(L10n.Menu.instructions, systemImage: "questionmark.circle")
+            }
+            Button {
+                showingAbout = true
+            } label: {
+                Label(L10n.About.title, systemImage: "info.circle")
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Theme.stageBackground)
+    }
+    
+    // MARK: - Lifecycle
+    
+    private func handleLaunch() {
+        if ProcessInfo.processInfo.arguments.contains("-UITesting")
+            || ProcessInfo.processInfo.arguments.contains("-SkipOnboarding") {
+            hasCompletedOnboarding = true
+            showingOnboarding = false
+        } else if !hasCompletedOnboarding {
+            showingOnboarding = true
+        }
+    }
+    
+    /// Reset reveal only when switching modes — not when opening Library
+    private func resetPickerRevealState() {
         contentViewVM.targetMovie = nil
         contentViewVM.randomMovie = nil
         contentViewVM.triggerScrolling = false
@@ -177,5 +301,6 @@ struct MoviePickerApp: View {
 struct MoviePickerApp_Previews: PreviewProvider {
     static var previews: some View {
         MoviePickerApp()
+            .environment(\.appDependencies, AppDependencies.live)
     }
 }

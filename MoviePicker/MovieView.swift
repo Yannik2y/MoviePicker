@@ -23,6 +23,7 @@ struct MovieView: View {
                 .frame(minHeight: 72)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
+                .background(.ultraThinMaterial)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(movie.title), \(movie.year), \(movie.actor)")

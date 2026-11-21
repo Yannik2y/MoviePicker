@@ -12,11 +12,12 @@ struct TMDBPosterImage: View {
     let movie: Movie
     var contentMode: ContentMode = .fill
     
+    @Environment(\.appDependencies) private var dependencies
     @State private var loadedImage: UIImage?
     @State private var loadFailed = false
     
     private var resolvedURL: URL? {
-        movie.tmdbPosterURL ?? MovieService.shared.posterURL(for: movie)
+        movie.tmdbPosterURL ?? dependencies.catalog.posterURL(for: movie)
     }
     
     var body: some View {
@@ -48,11 +49,11 @@ struct TMDBPosterImage: View {
             loadedImage = nil
             return
         }
-        if let cached = PosterImageCache.shared.image(for: url) {
+        if let cached = dependencies.posterCache.image(for: url) {
             loadedImage = cached
             return
         }
-        let image = await PosterImageCache.shared.load(url)
+        let image = await dependencies.posterCache.load(url)
         if Task.isCancelled { return }
         if let image {
             loadedImage = image
@@ -72,7 +73,7 @@ struct TMDBPosterImage: View {
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "film")
-                        .font(.system(size: 40))
+                        .font(.largeTitle)
                         .foregroundColor(.white.opacity(0.5))
                     Text(movie.title)
                         .font(.caption)

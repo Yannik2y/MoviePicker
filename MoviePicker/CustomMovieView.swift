@@ -11,7 +11,21 @@ import SwiftUI
 struct CustomMovieView: View {
     let movie: Movie
     var imageHeight: CGFloat = Layout.posterImageHeight
-    @StateObject private var storage = CustomMovieStorage.shared
+    @Environment(\.appDependencies) private var dependencies
+    
+    var body: some View {
+        CustomMovieBody(
+            movie: movie,
+            imageHeight: imageHeight,
+            storage: dependencies.customStorage
+        )
+    }
+}
+
+private struct CustomMovieBody: View {
+    let movie: Movie
+    var imageHeight: CGFloat
+    @ObservedObject var storage: CustomMovieStorage
     
     var body: some View {
         VStack(spacing: 0) {
@@ -29,42 +43,32 @@ struct CustomMovieView: View {
                         VStack(spacing: 8) {
                             Image(systemName: "film.fill")
                                 .font(.largeTitle)
-                                .foregroundColor(.white)
+                                .foregroundColor(.white.opacity(0.5))
                             Text(movie.title)
-                                .font(.title3.bold())
-                                .foregroundColor(.white)
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.7))
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal)
                         }
                     }
                 }
             }
-            .frame(maxWidth: .infinity)
             .frame(height: imageHeight)
+            .frame(maxWidth: .infinity)
             .clipped()
             
-            VStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(movie.title)
-                    .font(.title3.bold())
+                    .font(.headline)
                     .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .minimumScaleFactor(0.75)
-                
-                HStack(spacing: 10) {
-                    Image(systemName: "person.fill")
-                    Text(movie.actor)
-                        .lineLimit(1)
-                    Image(systemName: "calendar")
-                    Text(verbatim: String(movie.year))
-                }
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.9))
+                Text("\(movie.actor) · \(movie.year)")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
             }
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: 72)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(.ultraThinMaterial)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(movie.title), \(movie.year), \(movie.actor)")

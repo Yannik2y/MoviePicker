@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct BondPickerApp: App {
+    private let dependencies = AppDependencies.live
+    
     var body: some Scene {
         WindowGroup {
             MoviePickerApp()
+                .environment(\.appDependencies, dependencies)
+                .environmentObject(dependencies)
+                .preferredColorScheme(.dark)
+                .tint(Theme.accent)
         }
     }
 }

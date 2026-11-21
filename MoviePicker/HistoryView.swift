@@ -8,82 +8,106 @@
 import SwiftUI
 
 struct HistoryView: View {
+    @Environment(\.appDependencies) private var dependencies
     @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @StateObject private var history = MovieHistory.shared
+    /// When embedded in a tab/split that already provides navigation, hide Close.
+    var showsCloseButton: Bool = false
     @State private var selectedTab = 0
     @State private var showingClearAlert = false
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.black.ignoresSafeArea()
+        HistoryContent(
+            history: dependencies.history,
+            selectedTab: $selectedTab,
+            showingClearAlert: $showingClearAlert,
+            showsCloseButton: showsCloseButton,
+            regularWidth: horizontalSizeClass == .regular,
+            onClose: { dismiss() }
+        )
+    }
+}
+
+private struct HistoryContent: View {
+    @ObservedObject var history: MovieHistory
+    @Binding var selectedTab: Int
+    @Binding var showingClearAlert: Bool
+    var showsCloseButton: Bool
+    var regularWidth: Bool
+    var onClose: () -> Void
+    
+    var body: some View {
+        ZStack {
+            Theme.stageBackground.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                Picker("View", selection: $selectedTab) {
+                    Text(L10n.History.tabHistory).tag(0)
+                    Text(L10n.History.tabFavorites).tag(1)
+                    Text(L10n.History.tabStats).tag(2)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
                 
-                VStack(spacing: 0) {
-                    Picker("View", selection: $selectedTab) {
-                        Text(L10n.History.tabHistory).tag(0)
-                        Text(L10n.History.tabFavorites).tag(1)
-                        Text(L10n.History.tabStats).tag(2)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-                    
-                    TabView(selection: $selectedTab) {
-                        HistoryListView(entries: history.entries, history: history)
-                            .tag(0)
+                Group {
+                    switch selectedTab {
+                    case 1:
                         HistoryListView(entries: history.favorites, history: history, showEmptyFavorites: true)
-                            .tag(1)
-                        StatsView(stats: history.stats, regularWidth: horizontalSizeClass == .regular)
-                            .tag(2)
+                    case 2:
+                        StatsView(stats: history.stats, regularWidth: regularWidth)
+                    default:
+                        HistoryListView(entries: history.entries, history: history)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
                 }
-                .frame(maxWidth: horizontalSizeClass == .regular ? 900 : .infinity)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .navigationTitle(L10n.History.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color.black, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbar {
+            .frame(maxWidth: regularWidth ? 900 : .infinity)
+            .frame(maxWidth: .infinity)
+        }
+        .navigationTitle(L10n.History.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Theme.barMaterial, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbar {
+            if showsCloseButton {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(L10n.Common.close) { dismiss() }
-                        .foregroundColor(.cyan)
+                    Button(L10n.Common.close, action: onClose)
+                        .foregroundColor(Theme.accent)
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    if selectedTab < 2 {
-                        Menu {
-                            Button(role: .destructive, action: { showingClearAlert = true }) {
-                                Label(L10n.History.clear, systemImage: "trash")
-                            }
-                            if selectedTab == 0 {
-                                Button(action: { history.clearNonFavorites() }) {
-                                    Label(L10n.History.clearNonFavorites, systemImage: "star.slash")
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                                .foregroundColor(.cyan)
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if selectedTab < 2 {
+                    Menu {
+                        Button(role: .destructive, action: { showingClearAlert = true }) {
+                            Label(L10n.History.clear, systemImage: "trash")
                         }
-                        .accessibilityLabel(L10n.History.clear)
+                        if selectedTab == 0 {
+                            Button(action: { history.clearNonFavorites() }) {
+                                Label(L10n.History.clearNonFavorites, systemImage: "star.slash")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .foregroundColor(Theme.accent)
                     }
+                    .accessibilityLabel(L10n.History.clear)
                 }
             }
-            .alert(L10n.History.clearConfirmTitle, isPresented: $showingClearAlert) {
-                Button(L10n.History.cancel, role: .cancel) { }
-                Button(L10n.History.clearAction, role: .destructive) {
-                    if selectedTab == 0 {
-                        history.clearHistory()
-                    } else {
-                        history.clearNonFavorites()
-                    }
+        }
+        .alert(L10n.History.clearConfirmTitle, isPresented: $showingClearAlert) {
+            Button(L10n.History.cancel, role: .cancel) { }
+            Button(L10n.History.clearAction, role: .destructive) {
+                if selectedTab == 0 {
+                    history.clearHistory()
+                } else {
+                    history.clearFavorites()
                 }
-            } message: {
-                Text(selectedTab == 0
-                     ? L10n.History.clearConfirmAll
-                     : L10n.History.clearConfirmFavorites)
             }
+        } message: {
+            Text(selectedTab == 0
+                 ? L10n.History.clearConfirmAll
+                 : L10n.History.clearConfirmFavorites)
         }
     }
 }
@@ -99,7 +123,7 @@ struct HistoryListView: View {
                 VStack(spacing: 24) {
                     Spacer(minLength: 80)
                     Image(systemName: showEmptyFavorites ? "star.slash" : "clock")
-                        .font(.system(size: 50))
+                        .font(.largeTitle)
                         .foregroundColor(.white.opacity(0.4))
                     Text(showEmptyFavorites ? L10n.History.emptyFavoritesTitle : L10n.History.emptyTitle)
                         .font(.title2.bold())
@@ -168,7 +192,7 @@ struct HistoryEntryRow: View {
                         .font(.title3)
                         .foregroundColor(entry.isFavorite ? .yellow : .white.opacity(0.6))
                 }
-                .accessibilityLabel(entry.isFavorite ? L10n.History.tabFavorites : L10n.History.tabFavorites)
+                .accessibilityLabel(entry.isFavorite ? L10n.Accessibility.removeFavorite : L10n.Accessibility.addFavorite)
                 
                 ShareLink(item: shareText) {
                     Image(systemName: "square.and.arrow.up")

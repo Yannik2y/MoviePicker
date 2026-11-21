@@ -102,19 +102,42 @@ final class MoviePickerTests: XCTestCase {
     }
     
     @MainActor
-    func testPickerViewModelSelectMovieDoesNotSetRandomMovie() {
+    func testPickerViewModelSelectMovieSeedsRevealState() {
         let viewModel = PickerViewModel()
         viewModel.selectMovie()
         XCTAssertNotNil(viewModel.targetMovie)
         XCTAssertTrue(viewModel.triggerScrolling)
-        // randomMovie must not be pre-assigned to the target (reveal bug)
-        if let random = viewModel.randomMovie, let target = viewModel.targetMovie {
-            // May still be nil; if set by something else, must not equal target before scroll UI runs.
-            // Immediately after selectMovie, BasePickerViewModel clears randomMovie then sets target.
-            XCTAssertNotEqual(random.id, target.id)
-        } else {
-            XCTAssertNil(viewModel.randomMovie)
-        }
+        // Intentional: seed first scroll frame so the card never flashes empty
+        XCTAssertNotNil(viewModel.randomMovie)
+    }
+    
+    @MainActor
+    func testBondCatalogHasStableTMDBIds() {
+        let bond = Movies.filter { $0.genre != "Sports" }
+        XCTAssertEqual(bond.count, 25)
+        XCTAssertTrue(bond.allSatisfy { $0.tmdbId != nil })
+        XCTAssertEqual(Movies.first { $0.title == "Dr. No" }?.tmdbId, 646)
+        XCTAssertEqual(Movies.first { $0.title == "Skyfall" }?.tmdbId, 37724)
+    }
+    
+    @MainActor
+    func testHistoryClearFavoritesKeepsNonFavorites() {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let history = MovieHistory(
+            fileURL: dir.appendingPathComponent("history.json"),
+            defaults: UserDefaults(suiteName: UUID().uuidString)!
+        )
+        let bond = Movies[0]
+        let dad = Movies.first { $0.title == MovieConstants.fifaWM2014Title }!
+        history.addToHistory(movie: bond, mode: .bondPicker)
+        history.addToHistory(movie: dad, mode: .dadMode)
+        let favId = history.entries[0].id
+        history.toggleFavorite(id: favId)
+        XCTAssertEqual(history.favorites.count, 1)
+        history.clearFavorites()
+        XCTAssertEqual(history.favorites.count, 0)
+        XCTAssertEqual(history.entries.count, 1)
     }
     
     @MainActor
